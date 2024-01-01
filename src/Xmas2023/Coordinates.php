@@ -15,4 +15,14 @@ class Coordinates
     {
         return abs($this->x - $other->x) + abs($this->y - $other->y);
     }
+
+    public function moveToward(Direction $direction): self
+    {
+        return match ($direction) {
+            Direction::Up => new self($this->x, $this->y - 1),
+            Direction::Down => new self($this->x, $this->y + 1),
+            Direction::Left => new self($this->x - 1, $this->y),
+            Direction::Right => new self($this->x + 1, $this->y),
+        };
+    }
 }

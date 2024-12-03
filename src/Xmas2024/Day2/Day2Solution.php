@@ -28,5 +28,9 @@ class Day2Solution implements SolutionInterface, SecondPartSolutionInterface
     public function solveSecondPart(?string $input = null): string
     {
         $input ??= Input::read(__DIR__);
+
+        $reports = array_map(static fn(string $report) => new Report($report), explode("\n", $input));
+
+        return (string) count(array_filter($reports, fn(Report $report) => $report->isSafeWithDampener()));
     }
 }

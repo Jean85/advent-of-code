@@ -45,4 +45,19 @@ class Report
             }
         }
     }
+
+    public function isSafeWithDampener(): bool
+    {
+        foreach ($this->values as $i => $value) {
+            $dampenedReport = clone $this;
+            unset($dampenedReport->values[$i]);
+            $dampenedReport->values = array_values($dampenedReport->values);
+
+            if ($dampenedReport->isSafe()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

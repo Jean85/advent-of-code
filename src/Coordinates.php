@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Jean85\AdventOfCode;
 
-use Jean85\AdventOfCode\Direction;
-
 class Coordinates
 {
     public function __construct(

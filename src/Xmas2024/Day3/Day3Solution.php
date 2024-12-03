@@ -14,6 +14,28 @@ class Day3Solution implements SolutionInterface, SecondPartSolutionInterface
     {
         $input ??= Input::read(__DIR__);
 
+        return (string) $this->doMul($input);
+    }
+
+    public function solveSecondPart(?string $input = null): string
+    {
+        $input ??= Input::read(__DIR__);
+
+        $splitInstructions = explode('do()', $input);
+
+        $solution = 0;
+
+        foreach ($splitInstructions as $instructions) {
+            $solution += $this->doMul(
+                explode('don\'t()', $instructions)[0]
+            );
+        }
+
+        return (string) $solution;
+    }
+
+    private function doMul(string $input): int
+    {
         preg_match_all('/mul\((\d{1,3}),(\d{1,3})\)/', $input, $matches);
 
         $solution = 0;
@@ -22,15 +44,6 @@ class Day3Solution implements SolutionInterface, SecondPartSolutionInterface
             $solution += ((int) $match) * ((int) $matches[2][$i]);
         }
 
-        return (string) $solution;
-    }
-
-    public function solveSecondPart(?string $input = null): string
-    {
-        $input ??= Input::read(__DIR__);
-
-        $solution = 0;
-
-        return (string) $solution;
+        return $solution;
     }
 }

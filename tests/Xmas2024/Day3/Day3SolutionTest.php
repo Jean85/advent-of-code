@@ -20,9 +20,8 @@ class Day3SolutionTest extends TestCase
 
     public function testSecondPart(): void
     {
-        $this->markTestIncomplete();
         $Day3Solution = new Day3Solution();
 
-        $this->assertSame('31', $Day3Solution->solveSecondPart(self::TEST_INPUT));
+        $this->assertSame('48', $Day3Solution->solveSecondPart("xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"));
     }
 }

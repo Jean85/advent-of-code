@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- https://phpunit.de/manual/current/en/appendixes.configuration.html -->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd" 
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/schema/11.3.xsd" 
          backupGlobals="false" 
          colors="true" 
          cacheResult="false" 
@@ -9,8 +9,8 @@
          failOnWarning="true"
 >
   <testsuites>
-    <testsuite name="2023">
-      <directory>tests/Xmas2023</directory>
+    <testsuite name="tests">
+      <directory>tests</directory>
     </testsuite>
   </testsuites>
   <coverage/>

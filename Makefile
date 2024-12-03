@@ -1,4 +1,3 @@
-TODAY ?= $(date +%-d)
 today: cs-fix tests-today solve-today
 
 cs-fix:

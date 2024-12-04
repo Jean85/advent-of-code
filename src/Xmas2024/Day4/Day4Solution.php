@@ -27,11 +27,58 @@ class Day4Solution implements SolutionInterface, SecondPartSolutionInterface
 
     public function solveSecondPart(?string $input = null): string
     {
-        $input ??= Input::read(__DIR__);
+        $map = $this->parseMap($input);
 
-        $solution = 0;
+        return (string) $this->countCrossWord($map, Letter::A, [
+            Letter::M,
+            Letter::S,
+            Letter::S,
+            Letter::M,
+        ]);
+    }
 
-        return (string) $solution;
+    /**
+     * @param Map<Letter> $map
+     * @param list<Letter> $clockwiseLetters
+     */
+    private function countCrossWord(Map $map, Letter $centerLetter, array $clockwiseLetters): int
+    {
+        $count = 0;
+
+        $maxCoordinates = $map->getMaxCoordinates();
+
+        foreach (range(0, $maxCoordinates->y) as $y) {
+            foreach (range(0, $maxCoordinates->x) as $x) {
+                $coord = new Coordinates($x, $y);
+
+                if ($map->get($coord) === $centerLetter && $this->isCrossWordAt($map, $coord, $clockwiseLetters)) {
+                    ++$count;
+                }
+            }
+        }
+
+        return $count;
+    }
+
+    private function isCrossWordAt(Map $map, Coordinates $coord, array $clockwiseLetters): bool
+    {
+        $rotatedLetters = $clockwiseLetters;
+
+        do {
+            if (
+                $map->get($coord->moveToward(Direction::UpLeft)) === $rotatedLetters[0]
+                && $map->get($coord->moveToward(Direction::UpRight)) === $rotatedLetters[1]
+                && $map->get($coord->moveToward(Direction::DownRight)) === $rotatedLetters[2]
+                && $map->get($coord->moveToward(Direction::DownLeft)) === $rotatedLetters[3]
+            ) {
+                return true;
+            }
+
+            $rotatedLetters[] = array_shift($rotatedLetters);
+            $rotatedLetters = array_values($rotatedLetters);
+        } while ($rotatedLetters != $clockwiseLetters);
+
+        return false;
     }
 
     /**

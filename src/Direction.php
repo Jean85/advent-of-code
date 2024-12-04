@@ -7,7 +7,11 @@ namespace Jean85\AdventOfCode;
 enum Direction
 {
     case Up;
+    case UpLeft;
+    case UpRight;
     case Down;
+    case DownLeft;
+    case DownRight;
     case Left;
     case Right;
 }

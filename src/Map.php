@@ -15,12 +15,24 @@ class Map
     /** @var T|null */
     private mixed $defaultElement = null;
 
+    private Coordinates $maxCoordinates;
+
+    public function __construct()
+    {
+        $this->map = [];
+        $this->maxCoordinates = new Coordinates(0, 0);
+    }
+
     /**
      * @param T $tile
      */
     public function add(Coordinates $coordinates, mixed $tile): void
     {
         $this->map[$coordinates->x][$coordinates->y] = $tile;
+        $this->maxCoordinates = new Coordinates(
+            max($coordinates->x, $this->maxCoordinates->x),
+            max($coordinates->y, $this->maxCoordinates->y),
+        );
     }
 
     /**
@@ -35,6 +47,11 @@ class Map
                 $coordinates->x,
                 $coordinates->y,
             ));
+    }
+
+    public function getMaxCoordinates(): Coordinates
+    {
+        return $this->maxCoordinates;
     }
 
     /**

@@ -23,6 +23,10 @@ class Coordinates
             Direction::Down => new self($this->x, $this->y + 1),
             Direction::Left => new self($this->x - 1, $this->y),
             Direction::Right => new self($this->x + 1, $this->y),
+            Direction::UpLeft => $this->moveToward(Direction::Up)->moveToward(Direction::Left),
+            Direction::UpRight => $this->moveToward(Direction::Up)->moveToward(Direction::Right),
+            Direction::DownLeft => $this->moveToward(Direction::Down)->moveToward(Direction::Left),
+            Direction::DownRight => $this->moveToward(Direction::Down)->moveToward(Direction::Right),
         };
     }
 }

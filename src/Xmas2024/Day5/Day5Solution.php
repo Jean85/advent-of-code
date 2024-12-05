@@ -12,11 +12,7 @@ class Day5Solution implements SolutionInterface, SecondPartSolutionInterface
 {
     public function solve(?string $input = null): string
     {
-        $input ??= Input::read(__DIR__);
-        [$rulesInput, $updateListInput] = explode("\n\n", $input);
-
-        $orderingRules = new OrderingRules($rulesInput);
-        $updateList = $this->parseUpdateList($updateListInput);
+        [$orderingRules, $updateList] = $this->parseInput($input);
 
         $solution = 0;
 
@@ -31,7 +27,32 @@ class Day5Solution implements SolutionInterface, SecondPartSolutionInterface
 
     public function solveSecondPart(?string $input = null): string
     {
+        [$orderingRules, $updateList] = $this->parseInput($input);
+
+        $solution = 0;
+
+        foreach ($updateList as $pageList) {
+            if (! $pageList->isValidFor($orderingRules)) {
+                $pageList->sort($orderingRules);
+                $solution += $pageList->getMiddle();
+            }
+        }
+
+        return (string) $solution;
+    }
+
+    /**
+     * @return array{OrderingRules, list<PageList>}
+     */
+    private function parseInput(?string $input): array
+    {
         $input ??= Input::read(__DIR__);
+        [$rulesInput, $updateListInput] = explode("\n\n", $input);
+
+        $orderingRules = new OrderingRules($rulesInput);
+        $updateList = $this->parseUpdateList($updateListInput);
+
+        return [$orderingRules, $updateList];
     }
 
     /**

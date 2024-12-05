@@ -26,6 +26,17 @@ class PageListTest extends TestCase
         $this->assertSame($isValid, $pageList->isValidFor($this->getOrderingRules()));
     }
 
+    #[DataProvider('sortDataProvider')]
+    public function testSort(string $input, string $sorted, int $middle): void
+    {
+        $pageList = new PageList($input);
+
+        $pageList->sort($this->getOrderingRules());
+
+        $this->assertSame($sorted, implode(',', $pageList->list));
+        $this->assertSame($middle, $pageList->getMiddle());
+    }
+
     public static function listDataProvider(): array
     {
         return [
@@ -35,6 +46,15 @@ class PageListTest extends TestCase
             ['75,97,47,61,53', false],
             ['61,13,29', false],
             ['97,13,75,29,47', false],
+        ];
+    }
+
+    public static function sortDataProvider(): array
+    {
+        return [
+            ['75,97,47,61,53', '97,75,47,61,53', 47],
+            ['61,13,29', '61,29,13', 29],
+            ['97,13,75,29,47', '97,75,47,29,13', 47],
         ];
     }
 

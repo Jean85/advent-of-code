@@ -26,6 +26,28 @@ class OrderingRules
         }
     }
 
+    public function sort(int $first, int $second): int
+    {
+        if (in_array($second, $this->shouldBeAfter[$first] ?? [], true)) {
+            return -1;
+        }
+
+        if (in_array($first, $this->shouldBeBefore[$second] ?? [], true)) {
+            return -1;
+        }
+
+        if (in_array($first, $this->shouldBeAfter[$second] ?? [], true)) {
+            return +1;
+        }
+
+        if (in_array($second, $this->shouldBeBefore[$first] ?? [], true)) {
+            return +1;
+        }
+
+        // it is not against any rule
+        return 0;
+    }
+
     public function isSorted(int $first, int $second): bool
     {
         if (in_array($second, $this->shouldBeAfter[$first] ?? [], true)) {

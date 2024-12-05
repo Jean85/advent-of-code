@@ -9,7 +9,7 @@ use Webmozart\Assert\Assert;
 class PageList
 {
     /** @var list<int> */
-    public readonly array $list;
+    public array $list;
 
     public function __construct(string $input)
     {
@@ -34,6 +34,15 @@ class PageList
         }
 
         return true;
+    }
+
+    public function sort(OrderingRules $rules): void
+    {
+        usort($this->list, $rules->sort(...));
+
+        if (! $this->isValidFor($rules)) {
+            throw new \RuntimeException('Invalid ordering');
+        }
     }
 
     public function getMiddle(): int

@@ -27,11 +27,7 @@ class PageList
     {
         foreach ($this->list as $i => $pageNumber) {
             foreach (array_slice($this->list, $i + 1) as $nextPageNumber) {
-                if ($nextPageNumber === $rules->shouldBeBefore($pageNumber)) {
-                    return false;
-                }
-
-                if ($pageNumber === $rules->shouldBeAfter($nextPageNumber)) {
+                if (! $rules->isSorted($pageNumber, $nextPageNumber)) {
                     return false;
                 }
             }

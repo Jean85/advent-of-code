@@ -8,9 +8,9 @@ use Webmozart\Assert\Assert;
 
 class OrderingRules
 {
-    /** @var array<int, int> */
+    /** @var array<int, list<int>> */
     private array $shouldBeAfter = [];
-    /** @var array<int, int> */
+    /** @var array<int, list<int>> */
     private array $shouldBeBefore = [];
 
     public function __construct(string $input)
@@ -21,31 +21,30 @@ class OrderingRules
             Assert::integerish($pages[0]);
             Assert::integerish($pages[1]);
 
-            $this->shouldBeAfter[$pages[0]] = (int) $pages[1];
-            $this->shouldBeBefore[$pages[1]] = (int) $pages[0];
+            $this->shouldBeAfter[$pages[0]][] = (int) $pages[1];
+            $this->shouldBeBefore[$pages[1]][] = (int) $pages[0];
         }
     }
 
-    public function sorting(int $a, int $b): int
+    public function isSorted(int $first, int $second): bool
     {
-        if ($b === $this->shouldBeBefore($a)) {
-            return -1;
+        if (in_array($second, $this->shouldBeAfter[$first] ?? [], true)) {
+            return true;
         }
 
-        if ($a === $this->shouldBeBefore($b)) {
-            return 1;
+        if (in_array($first, $this->shouldBeBefore[$second] ?? [], true)) {
+            return true;
         }
 
-        return 0;
-    }
+        if (in_array($first, $this->shouldBeAfter[$second] ?? [], true)) {
+            return false;
+        }
 
-    public function shouldBeAfter(int $i): ?int
-    {
-        return $this->shouldBeAfter[$i] ?? null;
-    }
+        if (in_array($second, $this->shouldBeBefore[$first] ?? [], true)) {
+            return false;
+        }
 
-    public function shouldBeBefore(int $i): ?int
-    {
-        return $this->shouldBeBefore[$i] ?? null;
+        // it is not against any rule
+        return true;
     }
 }

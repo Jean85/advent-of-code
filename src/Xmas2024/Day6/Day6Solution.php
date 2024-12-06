@@ -131,18 +131,15 @@ class Day6Solution implements SolutionInterface, SecondPartSolutionInterface
      */
     private function guardIsInALoop(Map $map, Coordinates $guard): bool
     {
-        /** @var Map<list<Direction>> $traceMap */
-        $traceMap = new Map();
-        $traceMap->setDefaultElement([]);
+        $traceMap = [];
 
         $direction = Direction::Up;
         while ($this->isInsideTheMap($map, $guard)) {
-            $previousDirections = $traceMap->get($guard);
-            if (in_array($direction, $previousDirections, true)) {
+            if ($traceMap[$direction->name][$guard->x][$guard->y] ?? false) {
                 return true;
             }
 
-            $traceMap->add($guard, [$direction, ...$previousDirections]);
+            $traceMap[$direction->name][$guard->x][$guard->y] = true;
             [$guard, $direction] = $this->moveGuard($guard, $direction, $map);
         }
 

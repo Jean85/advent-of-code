@@ -27,6 +27,16 @@ class Day6SolutionTest extends TestCase
         $this->assertSame('41', $Day6Solution->solve(self::TEST_INPUT));
     }
 
+    public function testRegression(): void
+    {
+        $Day6Solution = new Day6Solution();
+        $input = '.#............
+..#...........
+.^............';
+
+        $this->assertSame('2', $Day6Solution->solve($input));
+    }
+
     public function testSecondPart(): void
     {
         $Day6Solution = new Day6Solution();

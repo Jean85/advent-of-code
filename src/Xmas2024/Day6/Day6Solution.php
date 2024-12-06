@@ -60,7 +60,6 @@ class Day6Solution implements SolutionInterface, SecondPartSolutionInterface
                 $mapWithObstacle = clone $map;
                 $mapWithObstacle->add($coord, Terrain::Obstacle);
 
-                echo 'checking possible obstacle at ' . $coord->x . ':' . $coord->y . PHP_EOL;
                 if ($this->guardIsInALoop($mapWithObstacle, $originalStartingPoint)) {
                     ++$solution;
                 }
@@ -120,9 +119,9 @@ class Day6Solution implements SolutionInterface, SecondPartSolutionInterface
                 Direction::Left => Direction::Up,
                 default => throw new \InvalidArgumentException('Strange direction: ' . $direction->name),
             };
+        } else {
+            $guard = $nextCoordinates;
         }
-
-        $guard = $guard->moveToward($direction);
 
         return [$guard, $direction];
     }

@@ -29,9 +29,8 @@ class Day6SolutionTest extends TestCase
 
     public function testSecondPart(): void
     {
-        $this->markTestIncomplete();
         $Day6Solution = new Day6Solution();
 
-        $this->assertSame('123', $Day6Solution->solveSecondPart(self::TEST_INPUT));
+        $this->assertSame('6', $Day6Solution->solveSecondPart(self::TEST_INPUT));
     }
 }

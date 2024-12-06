@@ -27,18 +27,7 @@ class Day6Solution implements SolutionInterface, SecondPartSolutionInterface
                 ++$solution;
             }
 
-            $nextCoordinates = $guard->moveToward($direction);
-            if ($map->get($nextCoordinates) === Terrain::Obstacle) {
-                $direction = match ($direction) {
-                    Direction::Up => Direction::Right,
-                    Direction::Right => Direction::Down,
-                    Direction::Down => Direction::Left,
-                    Direction::Left => Direction::Up,
-                    default => throw new \InvalidArgumentException('Strange direction: ' . $direction->name),
-                };
-            }
-
-            $guard = $guard->moveToward($direction);
+            [$guard, $direction] = $this->moveGuard($guard, $direction, $map);
         }
 
         return (string) $solution;
@@ -47,8 +36,36 @@ class Day6Solution implements SolutionInterface, SecondPartSolutionInterface
     public function solveSecondPart(?string $input = null): string
     {
         [$map, $guard] = $this->parseInput($input);
+        $originalStartingPoint = clone $guard;
+
+        $direction = Direction::Up;
+        while ($this->isInsideTheMap($map, $guard)) {
+            $currentTerrain = $map->get($guard);
+            if ($currentTerrain === Terrain::Plain) {
+                $map->add($guard, Terrain::Visited);
+            }
+
+            [$guard, $direction] = $this->moveGuard($guard, $direction, $map);
+        }
 
         $solution = 0;
+        $maxCoordinates = $map->getMaxCoordinates();
+        foreach (range(0, $maxCoordinates->x) as $x) {
+            foreach (range(0, $maxCoordinates->y) as $y) {
+                $coord = new Coordinates($x, $y);
+                if ($map->get($coord) !== Terrain::Visited) {
+                    continue;
+                }
+
+                $mapWithObstacle = clone $map;
+                $mapWithObstacle->add($coord, Terrain::Obstacle);
+
+                echo 'checking possible obstacle at ' . $coord->x . ':' . $coord->y . PHP_EOL;
+                if ($this->guardIsInALoop($mapWithObstacle, $originalStartingPoint)) {
+                    ++$solution;
+                }
+            }
+        }
 
         return (string) $solution;
     }
@@ -85,5 +102,51 @@ class Day6Solution implements SolutionInterface, SecondPartSolutionInterface
             && $guard->x <= $map->getMaxCoordinates()->x
             && $guard->y <= $map->getMaxCoordinates()->y
         ;
+    }
+
+    /**
+     * @param Map<Terrain> $map
+     *
+     * @return array{Coordinates, Direction}
+     */
+    private function moveGuard(Coordinates $guard, Direction $direction, Map $map): mixed
+    {
+        $nextCoordinates = $guard->moveToward($direction);
+        if ($map->get($nextCoordinates) === Terrain::Obstacle) {
+            $direction = match ($direction) {
+                Direction::Up => Direction::Right,
+                Direction::Right => Direction::Down,
+                Direction::Down => Direction::Left,
+                Direction::Left => Direction::Up,
+                default => throw new \InvalidArgumentException('Strange direction: ' . $direction->name),
+            };
+        }
+
+        $guard = $guard->moveToward($direction);
+
+        return [$guard, $direction];
+    }
+
+    /**
+     * @param Map<Terrain> $map
+     */
+    private function guardIsInALoop(Map $map, Coordinates $guard): bool
+    {
+        /** @var Map<list<Direction>> $traceMap */
+        $traceMap = new Map();
+        $traceMap->setDefaultElement([]);
+
+        $direction = Direction::Up;
+        while ($this->isInsideTheMap($map, $guard)) {
+            $previousDirections = $traceMap->get($guard);
+            if (in_array($direction, $previousDirections, true)) {
+                return true;
+            }
+
+            $traceMap->add($guard, [$direction, ...$previousDirections]);
+            [$guard, $direction] = $this->moveGuard($guard, $direction, $map);
+        }
+
+        return false;
     }
 }

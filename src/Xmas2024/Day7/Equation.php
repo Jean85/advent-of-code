@@ -13,7 +13,7 @@ class Equation
     /** @var list<int> */
     public readonly array $numbers;
 
-    public function __construct(string $input)
+    public function __construct(string $input, public readonly bool $allowConcatenation = false)
     {
         [$testValue, $stringNumbers] = explode(':', $input);
         Assert::integerish($testValue);
@@ -48,9 +48,14 @@ class Equation
         $right = array_shift($numbers);
 
         foreach (Operator::cases() as $operator) {
+            if ($operator === Operator::Concatenation && ! $this->allowConcatenation) {
+                continue;
+            }
+
             $newLeft = match ($operator) {
                 Operator::Add => $left + $right,
                 Operator::Multiply => $left * $right,
+                Operator::Concatenation => (int) ($left . $right),
             };
 
             if ($this->calculateCombination($newLeft, $numbers)) {

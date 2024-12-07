@@ -8,4 +8,6 @@ enum Operator: string
 {
     case Add = '+';
     case Multiply = '*';
+
+    case Concatenation = '||';
 }

@@ -26,9 +26,14 @@ class Day7Solution implements SolutionInterface, SecondPartSolutionInterface
 
     public function solveSecondPart(?string $input = null): string
     {
-        $equations = $this->parseInput($input);
+        $equations = $this->parseInput($input, true);
 
         $solution = 0;
+        foreach ($equations as $equation) {
+            if ($equation->isCombinable()) {
+                $solution += $equation->testValue;
+            }
+        }
 
         return (string) $solution;
     }
@@ -36,13 +41,13 @@ class Day7Solution implements SolutionInterface, SecondPartSolutionInterface
     /**
      * @return Equation[]
      */
-    private function parseInput(?string $input): array
+    private function parseInput(?string $input, bool $allowConcatenation = false): array
     {
         $input ??= Input::read(__DIR__);
 
         $equations = [];
         foreach (explode("\n", $input) as $line) {
-            $equations[] = new Equation($line);
+            $equations[] = new Equation($line, $allowConcatenation);
         }
 
         return $equations;

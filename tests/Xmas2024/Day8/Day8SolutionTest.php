@@ -29,11 +29,28 @@ class Day8SolutionTest extends TestCase
         $this->assertSame('14', $Day8Solution->solve(self::TEST_INPUT));
     }
 
-    public function testSecondPart(): void
+    public function testSecondPartWithSmallerExample(): void
     {
-        $this->markTestIncomplete();
+        $input = 'T.........
+...T......
+.T........
+..........
+..........
+..........
+..........
+..........
+..........
+..........';
+
         $Day8Solution = new Day8Solution();
 
-        $this->assertSame('11387', $Day8Solution->solveSecondPart(self::TEST_INPUT));
+        $this->assertSame('9', $Day8Solution->solveSecondPart($input));
+    }
+
+    public function testSecondPart(): void
+    {
+        $Day8Solution = new Day8Solution();
+
+        $this->assertSame('34', $Day8Solution->solveSecondPart(self::TEST_INPUT));
     }
 }

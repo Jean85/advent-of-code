@@ -20,21 +20,7 @@ class Day8Solution implements SolutionInterface, SecondPartSolutionInterface
         $this->antinodes = [];
         $map = $this->parseInput($input);
 
-        $solution = 0;
-        $maxCoordinates = $map->getMaxCoordinates();
-        $antennaeList = [];
-
-        foreach (range(0, $maxCoordinates->y) as $y) {
-            foreach (range(0, $maxCoordinates->x) as $x) {
-                $coord = new Coordinates($x, $y);
-                $antenna = $map->get($coord);
-                if ($antenna === '.') {
-                    continue;
-                }
-
-                $antennaeList[$antenna][] = $coord;
-            }
-        }
+        $antennaeList = $this->getAntennaeList($map);
 
         foreach ($antennaeList as $frequency => $antennae) {
             foreach ($antennae as $i => $firstAntenna) {
@@ -61,28 +47,56 @@ class Day8Solution implements SolutionInterface, SecondPartSolutionInterface
         return (string) count($this->antinodes);
     }
 
-    private function addAntiNode(Coordinates $antiNode, Map $map): void
+    private function addAntiNode(Coordinates $antiNode, Map $map): bool
     {
         if (! $map->isWithinBound($antiNode)) {
-            return;
+            return false;
         }
 
         $this->antinodes[(string) $antiNode] = true;
+
+        return true;
     }
 
     public function solveSecondPart(?string $input = null): string
     {
-        $map = $this->parseInput($input, true);
+        $this->antinodes = [];
+        $map = $this->parseInput($input);
 
-        $solution = 0;
+        $antennaeList = $this->getAntennaeList($map);
 
-        return (string) $solution;
+        foreach ($antennaeList as $frequency => $antennae) {
+            foreach ($antennae as $i => $firstAntenna) {
+                foreach (array_slice($antennae, $i + 1) as $secondAntenna) {
+                    $diffX = $secondAntenna->x - $firstAntenna->x;
+                    $diffY = $secondAntenna->y - $firstAntenna->y;
+
+                    $firstAntiNode = $firstAntenna;
+                    while ($this->addAntiNode($firstAntiNode, $map)) {
+                        $firstAntiNode = new Coordinates(
+                            $firstAntiNode->x - $diffX,
+                            $firstAntiNode->y - $diffY,
+                        );
+                    }
+
+                    $secondAntiNode = $secondAntenna;
+                    while ($this->addAntiNode($secondAntiNode, $map)) {
+                        $secondAntiNode = new Coordinates(
+                            $secondAntiNode->x + $diffX,
+                            $secondAntiNode->y + $diffY,
+                        );
+                    }
+                }
+            }
+        }
+
+        return (string) count($this->antinodes);
     }
 
     /**
      * @return Map<string>
      */
-    private function parseInput(?string $input, bool $allowConcatenation = false): Map
+    private function parseInput(?string $input): Map
     {
         $input ??= Input::read(__DIR__);
 
@@ -94,5 +108,25 @@ class Day8Solution implements SolutionInterface, SecondPartSolutionInterface
         }
 
         return $map;
+    }
+
+    private function getAntennaeList(Map $map): array
+    {
+        $maxCoordinates = $map->getMaxCoordinates();
+        $antennaeList = [];
+
+        foreach (range(0, $maxCoordinates->y) as $y) {
+            foreach (range(0, $maxCoordinates->x) as $x) {
+                $coord = new Coordinates($x, $y);
+                $antenna = $map->get($coord);
+                if ($antenna === '.') {
+                    continue;
+                }
+
+                $antennaeList[$antenna][] = $coord;
+            }
+        }
+
+        return $antennaeList;
     }
 }

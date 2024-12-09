@@ -29,4 +29,9 @@ class Coordinates
             Direction::DownRight => $this->moveToward(Direction::Down)->moveToward(Direction::Right),
         };
     }
+
+    public function __toString(): string
+    {
+        return $this->x . ',' . $this->y;
+    }
 }

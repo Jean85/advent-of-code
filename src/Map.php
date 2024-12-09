@@ -61,4 +61,13 @@ class Map
     {
         $this->defaultElement = $defaultElement;
     }
+
+    public function isWithinBound(Coordinates $coordinates): bool
+    {
+        return $this->maxCoordinates->x >= $coordinates->x
+            && $this->maxCoordinates->y >= $coordinates->y
+            && $coordinates->x >= 0
+            && $coordinates->y >= 0
+        ;
+    }
 }

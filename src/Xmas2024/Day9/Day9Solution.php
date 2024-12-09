@@ -22,8 +22,11 @@ class Day9Solution implements SolutionInterface, SecondPartSolutionInterface
 
     public function solveSecondPart(?string $input = null): string
     {
-        $map = $this->parseInput($input);
+        $input ??= Input::read(__DIR__);
+        $fileSystem = new FileSystem($input);
 
-        return (string) count($this->antinodes);
+        $fileSystem->defragWholeFiles();
+
+        return (string) $fileSystem->calculateChecksum();
     }
 }

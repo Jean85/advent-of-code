@@ -9,7 +9,10 @@ use Webmozart\Assert\Assert;
 class FileSystem
 {
     /** @var File[] */
-    private array $blocks;
+    private array $blocks = [];
+
+    /** @var array<int, File> */
+    private array $fileIndex;
 
     public function __construct(string $input)
     {
@@ -20,8 +23,10 @@ class FileSystem
             $char = array_shift($instructions);
             Assert::integerish($char);
             $counter = (int) $char;
+            $file = new File($fileId, $counter);
+            $this->fileIndex[count($this->blocks)] = $file;
             while ($counter--) {
-                $this->blocks[] = new File($fileId);
+                $this->blocks[] = $file;
             }
 
             ++$fileId;
@@ -54,12 +59,53 @@ class FileSystem
         } while (++$i < count($this->blocks));
     }
 
+    public function defragWholeFiles(): void
+    {
+        $files = array_reverse($this->fileIndex, true);
+
+        foreach ($files as $i => $fileToMove) {
+            if ($i % 1_000 === 0) {
+                echo 'Defragging file ' . $i . PHP_EOL;
+            }
+            $this->tryToMoveFile($fileToMove, $i);
+        }
+    }
+
+    private function tryToMoveFile(File $fileToMove, int $originalIndex): void
+    {
+        $index = 0;
+
+        while ($index <= ($originalIndex - $fileToMove->length)) {
+            if ($this->blocks[$index] instanceof File) {
+                ++$index;
+                continue;
+            }
+
+            $possibleSpace = array_slice($this->blocks, $index, $fileToMove->length);
+            if (! empty(array_filter($possibleSpace))) {
+                ++$index;
+                continue;
+            }
+
+            // we have enough space!
+            $length = $fileToMove->length;
+            while ($length--) {
+                $this->blocks[$index++] = $fileToMove;
+                $this->blocks[$originalIndex++] = null;
+            }
+
+            return;
+        }
+    }
+
     public function calculateChecksum(): int
     {
         $checksum = 0;
 
         foreach ($this->blocks as $i => $file) {
-            $checksum += $file->id * $i;
+            if ($file instanceof File) {
+                $checksum += $file->id * $i;
+            }
         }
 
         return $checksum;

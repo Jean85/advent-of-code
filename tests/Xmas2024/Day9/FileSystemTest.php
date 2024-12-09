@@ -22,6 +22,18 @@ class FileSystemTest extends TestCase
         $this->assertSame($compressed, $fileSystem->getBlocks());
     }
 
+    public function testDefragWholeFiles(): void
+    {
+        $fileSystem = new FileSystem('2333133121414131402');
+
+        $this->assertSame('00...111...2...333.44.5555.6666.777.888899', $fileSystem->getBlocks());
+
+        $fileSystem->defragWholeFiles();
+
+        $this->assertSame('00992111777.44.333....5555.6666.....8888..', $fileSystem->getBlocks());
+        $this->assertSame(2_858, $fileSystem->calculateChecksum());
+    }
+
     public static function diskMapProvider(): array
     {
         $noSpace = str_repeat('0', 9)

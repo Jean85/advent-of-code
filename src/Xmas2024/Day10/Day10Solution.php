@@ -25,7 +25,7 @@ class Day10Solution implements SolutionInterface, SecondPartSolutionInterface
     {
         $map = $this->createMap($input);
 
-        return (string) $this->countTrailheads($map);
+        return (string) $this->rateTrailheads($map);
     }
 
     private function countTrailheads(Map $map): int
@@ -46,6 +46,25 @@ class Day10Solution implements SolutionInterface, SecondPartSolutionInterface
                 }
 
                 $total += count($reachables);
+            }
+        }
+
+        return $total;
+    }
+
+    private function rateTrailheads(Map $map): int
+    {
+        $maxCoordinates = $map->getMaxCoordinates();
+        $total = 0;
+
+        foreach (range(0, $maxCoordinates->y) as $y) {
+            foreach (range(0, $maxCoordinates->x) as $x) {
+                $coordinates = new Coordinates($x, $y);
+                if ($map->get($coordinates) !== 0) {
+                    continue;
+                }
+
+                $total += count($this->getReachablesFrom($map, $coordinates));
             }
         }
 

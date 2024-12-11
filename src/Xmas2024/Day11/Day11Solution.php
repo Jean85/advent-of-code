@@ -14,19 +14,11 @@ class Day11Solution implements SolutionInterface, SecondPartSolutionInterface
     public function solve(?string $input = null): string
     {
         $stones = $this->createStones($input);
-
-        foreach ($stones as $stone) {
-            $blinks = 25;
-
-            while ($blinks--) {
-                $stone->blink();
-            }
-        }
+        $blinker = new Blinker();
 
         $solution = 0;
-
         foreach ($stones as $stone) {
-            $solution += $stone->count();
+            $solution += $blinker->countStonesAfterBlinks($stone, 25);
         }
 
         return (string) $solution;
@@ -34,9 +26,15 @@ class Day11Solution implements SolutionInterface, SecondPartSolutionInterface
 
     public function solveSecondPart(?string $input = null): string
     {
-        $map = $this->createStones($input);
+        $stones = $this->createStones($input);
+        $blinker = new Blinker();
 
-        return (string) $this->rateTrailheads($map);
+        $solution = 0;
+        foreach ($stones as $stone) {
+            $solution += $blinker->countStonesAfterBlinks($stone, 75);
+        }
+
+        return (string) $solution;
     }
 
     /**

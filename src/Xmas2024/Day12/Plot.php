@@ -13,6 +13,65 @@ use Jean85\AdventOfCode\Map;
  */
 class Plot extends Map
 {
+    public function __construct(
+        private readonly string $char,
+    ) {
+        parent::__construct();
+        $this->setDefaultElement(' ');
+    }
+
+    public function calculateSides(): int
+    {
+        $sides = 0;
+
+        foreach ($this->map as $x => $column) {
+            foreach ($column as $y => $plot) {
+                $coordinates = new Coordinates($x, $y);
+                if ($this->get($coordinates->moveToward(Direction::Up)) === ' ') {
+                    $sides += $this->calculateSingleFence($coordinates);
+                }
+            }
+        }
+
+        return $sides;
+    }
+
+    private function calculateSingleFence(Coordinates $insideTracker): int
+    {
+        $outsideTracker = $insideTracker->moveToward(Direction::Up);
+        $this->add($outsideTracker, '#');
+
+        $sides = 0;
+        $stopAt = null;
+        $stopDirection = null;
+        $direction = Direction::Right;
+        while ($stopAt != $insideTracker || $stopDirection != $direction) {
+            if ($this->get($insideTracker->moveToward($direction)) !== $this->char) {
+                // must turn clockwise
+                $outsideTracker = $insideTracker->moveToward($direction);
+                $this->add($outsideTracker, '#');
+                $stopDirection ??= $direction;
+                $direction = $direction->turnClockWise();
+                ++$sides;
+                $stopAt ??= $insideTracker;
+            } elseif ($this->get($outsideTracker->moveToward($direction)) === $this->char) {
+                // must turn counter-clockwise
+                $stopAt ??= $insideTracker;
+                $stopDirection ??= $direction;
+                $insideTracker = $outsideTracker->moveToward($direction);
+                $direction = $direction->turnCounterClockWise();
+                ++$sides;
+            } else {
+                // move forward
+                $insideTracker = $insideTracker->moveToward($direction);
+                $outsideTracker = $outsideTracker->moveToward($direction);
+                $this->add($outsideTracker, '#');
+            }
+        }
+
+        return $sides;
+    }
+
     public function calculateArea(): int
     {
         $area = 0;
@@ -56,5 +115,10 @@ class Plot extends Map
     public function calculateFenceCost(): int
     {
         return $this->calculateArea() * $this->calculatePerimeter();
+    }
+
+    public function calculateFenceDiscountedCost(): int
+    {
+        return $this->calculateArea() * $this->calculateSides();
     }
 }

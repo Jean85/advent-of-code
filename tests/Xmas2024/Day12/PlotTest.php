@@ -12,15 +12,55 @@ use PHPUnit\Framework\TestCase;
 class PlotTest extends TestCase
 {
     #[DataProvider('plotDataProvider')]
-    public function testCalculateArea(int $expectedPerimeter, array $coordinates): void
+    public function testCalculateAreaAndPerimeter(int $expectedPerimeter, array $coordinates): void
     {
-        $plot = new Plot();
+        $plot = new Plot('A');
         foreach ($coordinates as $coordinate) {
             $plot->add($coordinate, 'A');
         }
 
         $this->assertSame(count($coordinates), $plot->calculateArea(), 'Area is wrong');
         $this->assertSame($expectedPerimeter, $plot->calculatePerimeter(), 'Perimeter is wrong');
+    }
+
+    #[DataProvider('sideDataProvider')]
+    public function testCalculateSides(int $expectedSides, array $coordinates): void
+    {
+        $plot = new Plot('A');
+        foreach ($coordinates as $coordinate) {
+            $plot->add($coordinate, 'A');
+        }
+
+        $this->assertSame(count($coordinates), $plot->calculateArea(), 'Area is wrong');
+        $this->assertSame($expectedSides, $plot->calculateSides(), 'Sides wrong');
+    }
+
+    public static function sideDataProvider(): array
+    {
+        return [
+            [
+                4,
+                [new Coordinates(1, 1)],
+            ],
+            [
+                4,
+                [
+                    new Coordinates(1, 1),
+                    new Coordinates(2, 1),
+                    new Coordinates(3, 1),
+                    new Coordinates(4, 1),
+                ],
+            ],
+            [
+                4,
+                [
+                    new Coordinates(1, 1),
+                    new Coordinates(1, 2),
+                    new Coordinates(2, 1),
+                    new Coordinates(2, 2),
+                ],
+            ],
+        ];
     }
 
     public static function plotDataProvider(): array

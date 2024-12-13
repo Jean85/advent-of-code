@@ -15,6 +15,28 @@ enum Direction
     case Left;
     case Right;
 
+    public function turnClockWise(): self
+    {
+        return match ($this) {
+            self::Up => self::Right,
+            self::Down => self::Left,
+            self::Left => self::Up,
+            self::Right => self::Down,
+            default => throw new \Exception('Diagonals to be implemented'),
+        };
+    }
+
+    public function turnCounterClockWise(): self
+    {
+        return match ($this) {
+            self::Up => self::Left,
+            self::Down => self::Right,
+            self::Left => self::Down,
+            self::Right => self::Up,
+            default => throw new \Exception('Diagonals to be implemented'),
+        };
+    }
+
     /**
      * @return self[]
      */

@@ -23,6 +23,6 @@ class Day12Solution implements SolutionInterface, SecondPartSolutionInterface
         $input ??= Input::read(__DIR__);
         $garden = Garden::createFrom($input);
 
-        return (string) $garden->calculateFenceCost();
+        return (string) $garden->calculateFenceDiscountedCost();
     }
 }

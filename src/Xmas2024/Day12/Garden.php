@@ -39,8 +39,8 @@ class Garden extends Map
                     continue;
                 }
 
-                $plot = new Plot();
                 $plotChar = $garden->get($startCoord);
+                $plot = new Plot($plotChar);
                 self::extractPlot($clonedGarden, $plot, $plotChar, $startCoord);
 
                 $garden->plots[] = $plot;
@@ -72,6 +72,16 @@ class Garden extends Map
         return $this->plots;
     }
 
+    public function calculateFenceDiscountedCost(): int
+    {
+        $cost = 0;
+
+        foreach ($this->plots as $plot) {
+            $cost += $plot->calculateFenceDiscountedCost();
+        }
+
+        return $cost;
+    }
     public function calculateFenceCost(): int
     {
         $cost = 0;

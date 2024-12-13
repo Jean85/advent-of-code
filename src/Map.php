@@ -10,7 +10,7 @@ namespace Jean85\AdventOfCode;
 class Map
 {
     /** @var T[][] */
-    private array $map;
+    protected array $map;
 
     /** @var T|null */
     private mixed $defaultElement = null;

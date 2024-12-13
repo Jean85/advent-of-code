@@ -14,4 +14,17 @@ enum Direction
     case DownRight;
     case Left;
     case Right;
+
+    /**
+     * @return self[]
+     */
+    public static function noDiagonals(): array
+    {
+        return [
+            self::Up,
+            self::Right,
+            self::Down,
+            self::Left,
+        ];
+    }
 }

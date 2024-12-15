@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Jean85\AdventOfCode\Xmas2024\Day14;
 
+use Jean85\AdventOfCode\Coordinates;
+use Jean85\AdventOfCode\Direction;
 use Webmozart\Assert\Assert;
 
 class RobotMap
@@ -42,32 +44,95 @@ class RobotMap
         Assert::integer($middleY);
 
         foreach ($this->robots as $robot) {
-            $x = $robot->position->x % $this->maxX;
-            $y = $robot->position->y % $this->maxY;
+            $position = $this->wrapPosition($robot);
 
-            if ($x < 0) {
-                $x += $this->maxX;
-            }
-
-            if ($y < 0) {
-                $y += $this->maxY;
-            }
-
-            if ($x > $middleX) {
-                if ($y > $middleY) {
+            if ($position->x > $middleX) {
+                if ($position->y > $middleY) {
                     ++$quadrant1;
-                } elseif ($y < $middleY) {
+                } elseif ($position->y < $middleY) {
                     ++$quadrant2;
                 }
-            } elseif ($x < $middleX) {
-                if ($y > $middleY) {
+            } elseif ($position->x < $middleX) {
+                if ($position->y > $middleY) {
                     ++$quadrant3;
-                } elseif ($y < $middleY) {
+                } elseif ($position->y < $middleY) {
                     ++$quadrant4;
                 }
             }
         }
 
         return $quadrant1 * $quadrant2 * $quadrant3 * $quadrant4;
+    }
+
+    public function printToFile(int $seconds): bool
+    {
+        $tempMap = [];
+        foreach ($this->robots as $robot) {
+            $position = $this->wrapPosition($robot);
+
+            $tempMap[$position->x][$position->y] = $robot;
+        }
+
+        if (! $this->checkForOneWithAllNeighboursPopulated($tempMap)) {
+            return false;
+        }
+
+        $output = '';
+
+        foreach (range(0, $this->maxY - 1) as $y) {
+            foreach (range(0, $this->maxX - 1) as $x) {
+                if (isset($tempMap[$x][$y])) {
+                    $output .= 'X';
+                } else {
+                    $output .= ' ';
+                }
+            }
+            $output .= PHP_EOL;
+        }
+
+        file_put_contents($seconds . '.txt', $output);
+
+        return true;
+    }
+
+    private function wrapPosition(Robot $robot): Coordinates
+    {
+        $x = $robot->position->x % $this->maxX;
+        $y = $robot->position->y % $this->maxY;
+
+        if ($x < 0) {
+            $x += $this->maxX;
+        }
+
+        if ($y < 0) {
+            $y += $this->maxY;
+        }
+
+        return new Coordinates($x, $y);
+    }
+
+    private function checkForOneWithAllNeighboursPopulated(array $tempMap): bool
+    {
+        foreach (range(0, $this->maxY - 1) as $y) {
+            foreach (range(0, $this->maxX - 1) as $x) {
+                if ($this->areAllNeighboursPopulated($tempMap, new Coordinates($x, $y))) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public function areAllNeighboursPopulated(array $tempMap, Coordinates $position): bool
+    {
+        foreach (Direction::cases() as $direction) {
+            $neighbour = $position->moveToward($direction);
+            if (! isset($tempMap[$neighbour->x][$neighbour->y])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

@@ -49,6 +49,19 @@ class Map
             ));
     }
 
+    /**
+     * @return \Generator<array{Coordinates, T}>
+     */
+    public function getAll(): \Generator
+    {
+        foreach (range(0, $this->maxCoordinates->y) as $y) {
+            foreach (range(0, $this->maxCoordinates->x) as $x) {
+                $coordinates = new Coordinates($x, $y);
+                yield [$coordinates, $this->get($coordinates)];
+            }
+        }
+    }
+
     public function getMaxCoordinates(): Coordinates
     {
         return $this->maxCoordinates;
@@ -67,7 +80,6 @@ class Map
         return $this->maxCoordinates->x >= $coordinates->x
             && $this->maxCoordinates->y >= $coordinates->y
             && $coordinates->x >= 0
-            && $coordinates->y >= 0
-        ;
+            && $coordinates->y >= 0;
     }
 }

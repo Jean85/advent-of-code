@@ -24,21 +24,26 @@ class Day13Solution implements SolutionInterface, SecondPartSolutionInterface
 
     public function solveSecondPart(?string $input = null): string
     {
-        $map = $this->createMap($input);
+        $machines = $this->createMachines($input, true);
 
-        return (string) $this->rateTrailheads($map);
+        $cost = 0;
+        foreach ($machines as $machine) {
+            $cost += $machine->calculateMinimumCost();
+        }
+
+        return (string) $cost;
     }
 
     /**
      * @return list<ClawMachine>
      */
-    private function createMachines(?string $input): array
+    private function createMachines(?string $input, bool $prizeIsFurtherThanExpected = false): array
     {
         $input ??= Input::read(__DIR__);
         $machines = [];
 
         foreach (explode("\n\n", $input) as $machineInput) {
-            $machines[] = new ClawMachine($machineInput);
+            $machines[] = new ClawMachine($machineInput, $prizeIsFurtherThanExpected);
         }
 
         return $machines;

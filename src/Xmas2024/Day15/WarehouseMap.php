@@ -44,42 +44,44 @@ class WarehouseMap extends Map
     {
         foreach ($instructions as $direction) {
             if ($this->canMove($this->robot, $direction)) {
+                $this->pushBoxes($this->robot, $direction);
                 $this->robot = $this->robot->moveToward($direction);
+                Assert::same($this->get($this->robot)->name, Terrain::Plain->name);
             }
         }
     }
 
     private function canMove(Coordinates $robot, Direction $direction): bool
     {
-        $nextTile = $this->get($robot->moveToward($direction));
+        $nextCoordinates = $robot->moveToward($direction);
 
-        return match ($nextTile) {
+        return match ($this->get($nextCoordinates)) {
             Terrain::Wall => false,
             Terrain::Plain => true,
-            Terrain::Box => $this->pushBoxes($robot, $direction),
+            Terrain::Box => $this->canMove($nextCoordinates, $direction),
             Terrain::Robot => throw new \InvalidArgumentException(),
         };
     }
 
-    private function pushBoxes(Coordinates $robot, Direction $direction): bool
+    private function pushBoxes(Coordinates $coordinates, Direction $direction): void
     {
-        $coordinates = $robot->moveToward($direction);
-        $firstBox = $this->get($coordinates);
-        Assert::same($firstBox, Terrain::Box);
+        $nextCoordinates = $coordinates->moveToward($direction);
+        $nextTile = $this->get($nextCoordinates);
 
-        do {
-            $coordinates = $coordinates->moveToward($direction);
-            $nextTile = $this->get($coordinates);
-        } while ($nextTile === Terrain::Box);
-
-        if ($nextTile === Terrain::Wall) {
-            return false;
+        if ($nextTile === Terrain::Plain) {
+            return;
         }
 
-        $this->add($coordinates, Terrain::Box);
-        $this->add($robot->moveToward($direction), Terrain::Plain);
+        if ($nextTile === Terrain::Wall) {
+            throw new \RuntimeException('WTF? A wall? Did you call canMove first?');
+        }
 
-        return true;
+        if ($nextTile === Terrain::Box) {
+            $this->pushBoxes($nextCoordinates, $direction);
+        }
+
+        $this->add($nextCoordinates->moveToward($direction), Terrain::Box);
+        $this->add($nextCoordinates, Terrain::Plain);
     }
 
     public function countBoxCoordinates(): int

@@ -38,7 +38,7 @@ class Day15Solution implements SolutionInterface, SecondPartSolutionInterface
             ],
             $input
         );
-        
+
         [$map, $instructions] = $this->createMap($input);
 
         $map->execute($instructions);

@@ -10,4 +10,6 @@ enum Terrain: string
     case Box = 'O';
     case Robot = '@';
     case Plain = '.';
+    case LeftBox = '[';
+    case RightBox = ']';
 }

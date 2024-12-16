@@ -42,10 +42,10 @@ class WarehouseMap extends Map
      */
     public function execute(array $instructions): void
     {
-        foreach ($instructions as $direction) {
+        foreach ($instructions as $i => $direction) {
             if ($this->canMove($this->robot, $direction)) {
-                $this->pushBoxes($this->robot, $direction);
                 $this->robot = $this->robot->moveToward($direction);
+                $this->pushBoxes($this->robot, $direction);
                 Assert::same($this->get($this->robot)->name, Terrain::Plain->name);
             }
         }
@@ -59,29 +59,78 @@ class WarehouseMap extends Map
             Terrain::Wall => false,
             Terrain::Plain => true,
             Terrain::Box => $this->canMove($nextCoordinates, $direction),
+            Terrain::LeftBox => match ($direction) {
+                Direction::Up => $this->canMove($nextCoordinates, $direction)
+                    && $this->canMove($nextCoordinates->moveToward($direction->turnClockWise()), $direction),
+                Direction::Down => $this->canMove($nextCoordinates, $direction)
+                    && $this->canMove($nextCoordinates->moveToward($direction->turnCounterClockWise()), $direction),
+                Direction::Left,
+                Direction::Right => $this->canMove($nextCoordinates, $direction),
+                default => throw new \Exception('To be implemented'),
+            },
+            Terrain::RightBox => match ($direction) {
+                Direction::Up => $this->canMove($nextCoordinates, $direction)
+                    && $this->canMove($nextCoordinates->moveToward($direction->turnCounterClockWise()), $direction),
+                Direction::Down => $this->canMove($nextCoordinates, $direction)
+                    && $this->canMove($nextCoordinates->moveToward($direction->turnClockWise()), $direction),
+                Direction::Left,
+                Direction::Right => $this->canMove($nextCoordinates, $direction),
+                default => throw new \Exception('To be implemented'),
+            },
             Terrain::Robot => throw new \InvalidArgumentException(),
         };
     }
 
     private function pushBoxes(Coordinates $coordinates, Direction $direction): void
     {
+        $tileToPush = $this->get($coordinates);
         $nextCoordinates = $coordinates->moveToward($direction);
-        $nextTile = $this->get($nextCoordinates);
 
-        if ($nextTile === Terrain::Plain) {
-            return;
+        switch ($tileToPush) {
+            case Terrain::Plain:
+                return;
+            case Terrain::Wall:
+                throw new \RuntimeException('A wall is not pushable - did you call canMove first?');
+            case Terrain::Robot:
+                throw new \RuntimeException('WTF? A robot? Did we clone ourselves?');
+            case Terrain::LeftBox:
+                $rightBoxCoord = match ($direction) {
+                    Direction::Up => $coordinates->moveToward($direction->turnClockWise()),
+                    Direction::Down => $coordinates->moveToward($direction->turnCounterClockWise()),
+                    default => null,
+                };
+
+                if ($rightBoxCoord) {
+                    $nextRightBoxCoord = $rightBoxCoord->moveToward($direction);
+                    $this->pushBoxes($nextRightBoxCoord, $direction);
+                    $this->add($nextRightBoxCoord, Terrain::RightBox);
+                    $this->add($rightBoxCoord, Terrain::Plain);
+                }
+
+                break;
+            case Terrain::RightBox:
+                $leftBoxCoord = match ($direction) {
+                    Direction::Up => $coordinates->moveToward($direction->turnCounterClockWise()),
+                    Direction::Down => $coordinates->moveToward($direction->turnClockWise()),
+                    default => null,
+                };
+
+                if ($leftBoxCoord) {
+                    $nextLeftBoxCoord = $leftBoxCoord->moveToward($direction);
+                    $this->pushBoxes($nextLeftBoxCoord, $direction);
+                    $this->add($nextLeftBoxCoord, Terrain::LeftBox);
+                    $this->add($leftBoxCoord, Terrain::Plain);
+                }
+
+                break;
+            case Terrain::Box:
+                // noop
         }
 
-        if ($nextTile === Terrain::Wall) {
-            throw new \RuntimeException('WTF? A wall? Did you call canMove first?');
-        }
+        $this->pushBoxes($nextCoordinates, $direction);
 
-        if ($nextTile === Terrain::Box) {
-            $this->pushBoxes($nextCoordinates, $direction);
-        }
-
-        $this->add($nextCoordinates->moveToward($direction), Terrain::Box);
-        $this->add($nextCoordinates, Terrain::Plain);
+        $this->add($nextCoordinates, $tileToPush);
+        $this->add($coordinates, Terrain::Plain);
     }
 
     public function countBoxCoordinates(): int
@@ -89,11 +138,29 @@ class WarehouseMap extends Map
         $total = 0;
 
         foreach ($this->getAll() as [$coord, $tile]) {
-            if ($tile === Terrain::Box) {
+            if (in_array($tile, [Terrain::Box, Terrain::LeftBox], true)) {
                 $total += $coord->x + (100 * $coord->y);
             }
         }
 
         return $total;
+    }
+
+    public function print(): string
+    {
+        $output = '';
+        foreach (range(0, $this->getMaxCoordinates()->y) as $y) {
+            foreach (range(0, $this->getMaxCoordinates()->x) as $x) {
+                $coordinates = new Coordinates($x, $y);
+                if ($coordinates == $this->robot) {
+                    $output .= Terrain::Robot->value;
+                } else {
+                    $output .= $this->get($coordinates)->value;
+                }
+            }
+            $output .= PHP_EOL;
+        }
+
+        return trim($output);
     }
 }

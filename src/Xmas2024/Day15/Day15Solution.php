@@ -14,6 +14,7 @@ class Day15Solution implements SolutionInterface, SecondPartSolutionInterface
 {
     public function solve(?string $input = null): string
     {
+        $input ??= Input::read(__DIR__);
         [$map, $instructions] = $this->createMap($input);
 
         $map->execute($instructions);
@@ -23,6 +24,7 @@ class Day15Solution implements SolutionInterface, SecondPartSolutionInterface
 
     public function solveSecondPart(?string $input = null): string
     {
+        $input ??= Input::read(__DIR__);
         $input = str_replace(
             [
                 Terrain::Wall->value,
@@ -49,10 +51,8 @@ class Day15Solution implements SolutionInterface, SecondPartSolutionInterface
     /**
      * @return array{WarehouseMap, Coordinates, list<Direction>}
      */
-    private function createMap(?string $input): array
+    private function createMap(string $input): array
     {
-        $input ??= Input::read(__DIR__);
-
         [$mapInput, $instructionsInput] = explode("\n\n", $input);
         $map = new WarehouseMap($mapInput);
 

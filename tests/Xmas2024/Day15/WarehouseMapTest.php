@@ -10,7 +10,26 @@ use PHPUnit\Framework\TestCase;
 
 class WarehouseMapTest extends TestCase
 {
-    public function test(): void
+    public function testRegression(): void
+    {
+        $input = '####
+#@.#
+#[]#
+#..#
+####';
+        $map = new WarehouseMap($input);
+        $this->assertEquals($input, $map->print());
+
+        $map->execute([Direction::Down]);
+
+        $this->assertEquals('####
+#..#
+#@.#
+#[]#
+####', $map->print());
+    }
+
+    public function testBasic(): void
     {
         $map = new WarehouseMap('########
 #..O.O.#

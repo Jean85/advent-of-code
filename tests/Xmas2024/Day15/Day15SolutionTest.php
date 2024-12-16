@@ -40,9 +40,8 @@ v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^';
 
     public function testSecondPart(): void
     {
-        $this->markTestIncomplete();
         $Day15Solution = new Day15Solution();
 
-        $this->assertSame('81', $Day15Solution->solveSecondPart(self::TEST_INPUT));
+        $this->assertSame('9021', $Day15Solution->solveSecondPart(self::TEST_INPUT));
     }
 }

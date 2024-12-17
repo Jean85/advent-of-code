@@ -1,0 +1,81 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Xmas2024\Day16;
+
+use Jean85\AdventOfCode\Xmas2024\Day16\Day16Solution;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
+
+class Day16SolutionTest extends TestCase
+{
+    private const string TEST_INPUT = '###############
+#.......#....E#
+#.#.###.#.###.#
+#.....#.#...#.#
+#.###.#####.#.#
+#.#.#.......#.#
+#.#.#####.###.#
+#...........#.#
+###.#.#####.#.#
+#...#.....#.#.#
+#.#.#.###.#.#.#
+#.....#...#.#.#
+#.###.#.#.#.#.#
+#S..#.....#...#
+###############';
+
+    public static function part1DataProvider(): array
+    {
+        return [
+            [self::TEST_INPUT, 7_036],
+            [
+                '#################
+#...#...#...#..E#
+#.#.#.#.#.#.#.#.#
+#.#.#.#...#...#.#
+#.#.#.#.###.#.#.#
+#...#.#.#.....#.#
+#.#.#.#.#.#####.#
+#.#...#.#.#.....#
+#.#.#####.#.###.#
+#.#.#.......#...#
+#.#.###.#####.###
+#.#.#...#.....#.#
+#.#.#.#####.###.#
+#.#.#.........#.#
+#.#.#.#########.#
+#S#.............#
+#################',
+                11_048,
+            ],
+            [
+                '##########
+#.......E#
+#.##.#####
+#..#.....#
+##.#####.#
+#S.......#
+##########',
+                4_013,
+            ],
+        ];
+    }
+
+    #[DataProvider('part1DataProvider')]
+    public function test(string $input, int $expectedResult): void
+    {
+        $Day16Solution = new Day16Solution();
+
+        $this->assertSame((string) $expectedResult, $Day16Solution->solve($input));
+    }
+
+    public function testSecondPart(): void
+    {
+        $this->markTestIncomplete();
+        $Day16Solution = new Day16Solution();
+
+        $this->assertSame('81', $Day16Solution->solveSecondPart(self::TEST_INPUT));
+    }
+}

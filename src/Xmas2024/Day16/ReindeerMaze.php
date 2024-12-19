@@ -58,7 +58,12 @@ class ReindeerMaze extends Map
 
         $cheapestPath = PHP_INT_MAX;
 
+        $i = 0;
         while (! empty($neighbours)) {
+            if (++$i % 1000 === 0) {
+                echo 'Iteration ' . $i . ': ' . $costMap->getSize() . ' - current cost: ' . $path->getCost() . PHP_EOL;
+            }
+            
             $path = $this->findBestCurrentPath($neighbours)->advance();
             if ($path->getCost() > $cheapestPath) {
                 continue;

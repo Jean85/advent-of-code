@@ -22,6 +22,11 @@ class Map
         $this->map = [];
         $this->maxCoordinates = new Coordinates(0, 0);
     }
+    public function getSize(): int
+    {
+        return count($this->map, COUNT_RECURSIVE);
+    }
+
 
     /**
      * @param T $tile

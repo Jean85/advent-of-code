@@ -18,7 +18,6 @@ class PathCostMap
             $this->saveCostIfCheaper($currentPath),
             $this->saveCostIfCheaper($currentPath->turnLeft()),
             $this->saveCostIfCheaper($currentPath->turnRight()),
-            $this->saveCostIfCheaper($currentPath->turnRight()->turnRight()),
         ], static fn(?Path $path) => $path !== null);
     }
 

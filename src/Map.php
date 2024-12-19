@@ -27,7 +27,6 @@ class Map
         return count($this->map, COUNT_RECURSIVE);
     }
 
-
     /**
      * @param T $tile
      */

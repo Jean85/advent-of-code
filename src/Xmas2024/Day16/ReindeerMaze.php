@@ -49,22 +49,22 @@ class ReindeerMaze extends Map
         $costMap->add($this->start, 0);
 
         $path = new Path($this->start, Direction::Right);
-        $neighbours = [
-            $path,
-            $path->turnLeft(),
-            $path->turnRight(),
-            $path->turnLeft()->turnLeft(),
-        ];
+
+        $neighbours = [];
+        $this->addToSortedByTurns($neighbours, $path);
+        $this->addToSortedByTurns($neighbours, $path->turnLeft());
+        $this->addToSortedByTurns($neighbours, $path->turnRight());
+        $this->addToSortedByTurns($neighbours, $path->turnLeft()->turnLeft());
 
         $cheapestPath = PHP_INT_MAX;
 
         $i = 0;
-        while (! empty($neighbours)) {
-            if (++$i % 1000 === 0) {
-                echo 'Iteration ' . $i . ': ' . $costMap->getSize() . ' - current cost: ' . $path->getCost() . PHP_EOL;
+        while (true) {
+            $path = $this->findBestCurrentPath($neighbours)?->advance();
+            if (! $path instanceof Path) {
+                return $cheapestPath;
             }
-            
-            $path = $this->findBestCurrentPath($neighbours)->advance();
+
             if ($path->getCost() > $cheapestPath) {
                 continue;
             }
@@ -81,20 +81,30 @@ class ReindeerMaze extends Map
             }
 
             $pathCostMap = $costMap->get($path->position) ?: new PathCostMap();
-            $neighbours = [...$neighbours, ...$pathCostMap->reachedCheaplyBy($path)];
+            foreach ($pathCostMap->reachedCheaplyBy($path) as $nextPath) {
+                $this->addToSortedByTurns($neighbours, $nextPath);
+            }
+
             $costMap->add($path->position, $pathCostMap);
         }
-
-        return $cheapestPath;
     }
 
-    private function findBestCurrentPath(array &$currentPaths): Path
+    private function findBestCurrentPath(array &$currentPaths): ?Path
     {
-        usort(
-            $currentPaths,
-            static fn(Path $a, Path $b): int => $a->getCost() <=> $b->getCost()
-        );
+        $firstKey = array_key_first($currentPaths);
+        if (0 === count($currentPaths[$firstKey])) {
+            unset($currentPaths[$firstKey]);
+            $firstKey = array_key_first($currentPaths);
+            if (null === $firstKey) {
+                return null;
+            }
+        }
 
-        return array_shift($currentPaths);
+        return array_shift($currentPaths[$firstKey]);
+    }
+
+    private function addToSortedByTurns(array &$neighbours, Path $path): void
+    {
+        $neighbours[$path->getTurns()][] = $path;
     }
 }

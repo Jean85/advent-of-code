@@ -11,6 +11,7 @@ use Stringable;
 class Path implements Stringable
 {
     private int $cost = 0;
+    private int $turns = 0;
     public function __construct(
         public Coordinates $position,
         public Direction $direction,
@@ -19,6 +20,11 @@ class Path implements Stringable
     public function getCost(): int
     {
         return $this->cost;
+    }
+
+    public function getTurns(): int
+    {
+        return $this->turns;
     }
 
     /**
@@ -36,6 +42,7 @@ class Path implements Stringable
     {
         $path = new self($this->position, $this->direction->turnCounterClockWise());
         $path->cost = $this->cost + 1_000;
+        $path->turns = $this->turns + 1;
 
         return $path;
     }
@@ -44,6 +51,7 @@ class Path implements Stringable
     {
         $path = new self($this->position, $this->direction->turnClockWise());
         $path->cost = $this->cost + 1_000;
+        $path->turns = $this->turns + 1;
 
         return $path;
     }

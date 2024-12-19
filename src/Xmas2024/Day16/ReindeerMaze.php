@@ -17,6 +17,9 @@ class ReindeerMaze extends Map
     private readonly Coordinates $start;
     private readonly Coordinates $end;
 
+    /** @var list<Path> */
+    private array $bestPaths = [];
+
     public function __construct(string $input)
     {
         parent::__construct();
@@ -41,8 +44,17 @@ class ReindeerMaze extends Map
         Assert::notNull($this->end);
     }
 
+    /**
+     * @return list<Path>
+     */
+    public function getBestPaths(): array
+    {
+        return $this->bestPaths;
+    }
+
     public function calculateShortestPath(): int
     {
+        $this->bestPaths = [];
         /** @var Map<PathCostMap|null> $costMap */
         $costMap = new Map();
         $costMap->setDefaultElement(false);
@@ -74,6 +86,7 @@ class ReindeerMaze extends Map
                 case Terrain::Wall:
                     continue 2;
                 case Terrain::End:
+                    $this->bestPaths[] = $path;
                     $cheapestPath = min($cheapestPath, $path->getCost());
                     break;
                 case Terrain::Plain:

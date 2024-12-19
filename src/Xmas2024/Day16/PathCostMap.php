@@ -40,7 +40,7 @@ class PathCostMap
         if (isset($this->costMap[$currentPath->direction->name])) {
             $currentCost = $this->costMap[$currentPath->direction->name]->getCost();
 
-            if ($currentCost <= $currentPath->getCost()) {
+            if ($currentCost < $currentPath->getCost()) {
                 return null;
             }
         }

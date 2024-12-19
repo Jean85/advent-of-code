@@ -12,10 +12,14 @@ class Path implements Stringable
 {
     private int $cost = 0;
     private int $turns = 0;
+    private array $positionHistory = [];
+
     public function __construct(
         public Coordinates $position,
         public Direction $direction,
-    ) {}
+    ) {
+        $this->positionHistory[] = $this->position;
+    }
 
     public function getCost(): int
     {
@@ -27,6 +31,11 @@ class Path implements Stringable
         return $this->turns;
     }
 
+    public function getPositionHistory(): array
+    {
+        return $this->positionHistory;
+    }
+
     /**
      * @return $this
      */
@@ -34,24 +43,27 @@ class Path implements Stringable
     {
         ++$this->cost;
         $this->position = $this->position->moveToward($this->direction);
+        $this->positionHistory[] = $this->position;
 
         return $this;
     }
 
     public function turnLeft(): self
     {
-        $path = new self($this->position, $this->direction->turnCounterClockWise());
-        $path->cost = $this->cost + 1_000;
-        $path->turns = $this->turns + 1;
+        $path = clone $this;
+        $path->direction = $this->direction->turnCounterClockWise();
+        $path->cost += 1_000;
+        ++$path->turns;
 
         return $path;
     }
 
     public function turnRight(): self
     {
-        $path = new self($this->position, $this->direction->turnClockWise());
-        $path->cost = $this->cost + 1_000;
-        $path->turns = $this->turns + 1;
+        $path = clone $this;
+        $path->direction = $this->direction->turnClockWise();
+        $path->cost += 1_000;
+        ++$path->turns;
 
         return $path;
     }
@@ -59,10 +71,5 @@ class Path implements Stringable
     public function __toString(): string
     {
         return $this->position->__toString() . ' ' . $this->direction->name . ' (' . $this->cost . ')';
-    }
-
-    public function eurhistic(Coordinates $end): int
-    {
-        return $this->cost + $this->position->getManhattanDistanceFrom($end);
     }
 }

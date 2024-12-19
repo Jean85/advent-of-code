@@ -23,6 +23,14 @@ class Day16Solution implements SolutionInterface, SecondPartSolutionInterface
         $input ??= Input::read(__DIR__);
         $map = new ReindeerMaze($input);
 
-        return (string) $map->calculateShortestPath2();
+        $map->calculateShortestPath();
+        $coveredByBestPaths = [];
+        foreach ($map->getBestPaths() as $path) {
+            foreach ($path->getPositionHistory() as $position) {
+                $coveredByBestPaths[$position->__toString()] = true;
+            }
+        }
+
+        return (string) (count($coveredByBestPaths) - 1);
     }
 }

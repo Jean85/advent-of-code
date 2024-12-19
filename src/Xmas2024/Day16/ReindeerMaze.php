@@ -43,49 +43,41 @@ class ReindeerMaze extends Map
 
     public function calculateShortestPath(): int
     {
-        $startingPath = new Path($this->start, Direction::Right);
-        $currentPaths = [
-            $startingPath,
-            $startingPath->turnLeft(),
-            $startingPath->turnLeft()->turnLeft(),
-            $startingPath->turnRight(),
+        /** @var Map<PathCostMap|null> $costMap */
+        $costMap = new Map();
+        $costMap->setDefaultElement(false);
+        $costMap->add($this->start, 0);
+
+        $path = new Path($this->start, Direction::Right);
+        $neighbours = [
+            $path,
+            $path->turnLeft(),
+            $path->turnRight(),
+            $path->turnLeft()->turnLeft(),
         ];
 
-        /** @var Map<int> $costMap */
-        $costMap = new Map();
-        $costMap->setDefaultElement(PHP_INT_MAX);
         $cheapestPath = PHP_INT_MAX;
 
-        while (! empty($currentPaths)) {
-            $path = $this->findBestCurrentPath($currentPaths);
-            if ($path->getCost() >= $cheapestPath) {
+        while (! empty($neighbours)) {
+            $path = $this->findBestCurrentPath($neighbours)->advance();
+            if ($path->getCost() > $cheapestPath) {
                 continue;
             }
 
-            $nextCoordinates = $path->position->moveToward($path->direction);
-            if ($costMap->get($nextCoordinates) <= $path->getCost()) {
-                // tile already reached with a cheaper path, drop this path
-                continue;
-            }
-
-            $path->advance();
-            $costMap->add($nextCoordinates, $path->getCost());
-
-            switch ($this->get($nextCoordinates)) {
-                case Terrain::End:
-                    // end reached!
-                    $cheapestPath = min($cheapestPath, $path->getCost());
-                    break;
+            switch ($this->get($path->position)) {
                 case Terrain::Start:
                 case Terrain::Wall:
-                    // dead end, drop this path
                     continue 2;
+                case Terrain::End:
+                    $cheapestPath = min($cheapestPath, $path->getCost());
+                    break;
                 case Terrain::Plain:
-                    $currentPaths[] = $path;
-                    $currentPaths[] = $path->turnLeft();
-                    $currentPaths[] = $path->turnRight();
                     break;
             }
+
+            $pathCostMap = $costMap->get($path->position) ?: new PathCostMap();
+            $neighbours = [...$neighbours, ...$pathCostMap->reachedCheaplyBy($path)];
+            $costMap->add($path->position, $pathCostMap);
         }
 
         return $cheapestPath;
@@ -95,7 +87,7 @@ class ReindeerMaze extends Map
     {
         usort(
             $currentPaths,
-            fn(Path $a, Path $b): int => $a->eurhistic($this->end) <=> $b->eurhistic($this->end)
+            static fn(Path $a, Path $b): int => $a->getCost() <=> $b->getCost()
         );
 
         return array_shift($currentPaths);

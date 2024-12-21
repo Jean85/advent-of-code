@@ -24,9 +24,13 @@ Program: 0,1,5,4,3,0';
 
     public function testSecondPart(): void
     {
-        $this->markTestIncomplete();
         $Day17Solution = new Day17Solution();
+        $input = 'Register A: 2024
+Register B: 0
+Register C: 0
 
-        $this->assertSame('81', $Day17Solution->solveSecondPart(self::TEST_INPUT));
+Program: 0,3,5,4,3,0';
+
+        $this->assertSame('117440', $Day17Solution->solveSecondPart($input));
     }
 }

@@ -4,16 +4,40 @@ declare(strict_types=1);
 
 namespace Jean85\AdventOfCode\Xmas2024\Day17;
 
-use Jean85\AdventOfCode\Coordinates;
 use Jean85\AdventOfCode\Input;
-use Jean85\AdventOfCode\Map;
 use Jean85\AdventOfCode\SecondPartSolutionInterface;
 use Jean85\AdventOfCode\SolutionInterface;
-use Webmozart\Assert\Assert;
 
 class Day17Solution implements SolutionInterface, SecondPartSolutionInterface
 {
     public function solve(?string $input = null): string
+    {
+        [$program, $computer] = $this->prepareComputer($input);
+
+        return implode(',', $computer->run($program));
+    }
+
+    public function solveSecondPart(?string $input = null): string
+    {
+        [$program, $parsedComputer] = $this->prepareComputer($input);
+
+        $testA = -1;
+
+        do {
+            $computer = new Computer(
+                ++$testA,
+                $parsedComputer->getRegistryB(),
+                $parsedComputer->getRegistryC(),
+            );
+        } while ($program !== $computer->run($program));
+
+        return (string) $testA;
+    }
+
+    /**
+     * @return array{list<int>, Computer}
+     */
+    private function prepareComputer(?string $input): array
     {
         $input ??= Input::read(__DIR__);
         [$registers, $program] = explode(PHP_EOL . PHP_EOL, $input);
@@ -24,31 +48,6 @@ class Day17Solution implements SolutionInterface, SecondPartSolutionInterface
             explode(',', substr($program, 9))
         );
 
-        return implode(',', $computer->run($program));
-    }
-
-    public function solveSecondPart(?string $input = null): string
-    {
-        $map = $this->createMap($input);
-
-        return (string) $this->rateTrailheads($map);
-    }
-
-    /**
-     * @return Map<int>
-     */
-    private function createMap(?string $input): Map
-    {
-        $input ??= Input::read(__DIR__);
-        $map = new Map();
-        $map->setDefaultElement(999);
-        foreach (explode("\n", $input) as $y => $line) {
-            foreach (str_split($line) as $x => $char) {
-                Assert::integerish($char);
-                $map->add(new Coordinates($x, $y), (int) $char);
-            }
-        }
-
-        return $map;
+        return [$program, $computer];
     }
 }

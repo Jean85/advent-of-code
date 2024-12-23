@@ -12,10 +12,7 @@ class Day19Solution implements SolutionInterface, SecondPartSolutionInterface
 {
     public function solve(?string $input = null): string
     {
-        $input ??= Input::read(__DIR__);
-        [$possibleTowels, $designs] = explode(PHP_EOL . PHP_EOL, $input);
-        $possibleTowels = explode(', ', $possibleTowels);
-        $requestedDesigns = explode(PHP_EOL, $designs);
+        [$possibleTowels, $requestedDesigns] = $this->parseInput($input);
 
         $possibleDesigns = 0;
         foreach ($requestedDesigns as $design) {
@@ -25,13 +22,6 @@ class Day19Solution implements SolutionInterface, SecondPartSolutionInterface
         }
 
         return (string) $possibleDesigns;
-    }
-
-    public function solveSecondPart(?string $input = null): string
-    {
-        $map = $this->createMap($input);
-
-        return (string) $this->rateTrailheads($map);
     }
 
     /**
@@ -61,5 +51,57 @@ class Day19Solution implements SolutionInterface, SecondPartSolutionInterface
         }
 
         return $cache[$design] = false;
+    }
+
+    public function solveSecondPart(?string $input = null): string
+    {
+        [$possibleTowels, $requestedDesigns] = $this->parseInput($input);
+
+        $possibleDesignCombinations = 0;
+        foreach ($requestedDesigns as $design) {
+            $possibleDesignCombinations += $this->countPossibleCombinations($design, $possibleTowels);
+        }
+
+        return (string) $possibleDesignCombinations;
+    }
+
+    /**
+     * @param list<string> $possibleTowels
+     */
+    private function countPossibleCombinations(string $design, array $possibleTowels): int
+    {
+        /** @var array<string, int> $cache */
+        static $cache;
+        $cache ??= [];
+
+        if ($design === '') {
+            return 1;
+        }
+
+        if (isset($cache[$design])) {
+            return $cache[$design];
+        }
+
+        $combinations = 0;
+        foreach ($possibleTowels as $possibleTowel) {
+            if (str_starts_with($design, $possibleTowel)) {
+                $combinations += $this->countPossibleCombinations(substr($design, strlen($possibleTowel)), $possibleTowels);
+            }
+        }
+
+        return $cache[$design] = $combinations;
+    }
+
+    /**
+     * @return array{list<string>, list<string>}
+     */
+    private function parseInput(?string $input): array
+    {
+        $input ??= Input::read(__DIR__);
+        [$possibleTowels, $designs] = explode(PHP_EOL . PHP_EOL, $input);
+        $possibleTowels = explode(', ', $possibleTowels);
+        $requestedDesigns = explode(PHP_EOL, $designs);
+
+        return [$possibleTowels, $requestedDesigns];
     }
 }

@@ -29,9 +29,8 @@ bbrgwb';
 
     public function testSecondPart(): void
     {
-        $this->markTestIncomplete();
         $Day19Solution = new Day19Solution();
 
-        $this->assertSame('81', $Day19Solution->solveSecondPart(self::TEST_INPUT));
+        $this->assertSame('16', $Day19Solution->solveSecondPart(self::TEST_INPUT));
     }
 }

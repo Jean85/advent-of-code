@@ -22,7 +22,28 @@ class Day18Solution implements SolutionInterface, SecondPartSolutionInterface
     {
         $map = $this->createMap($input);
 
-        return (string) $this->rateTrailheads($map);
+        $additionalFallingBytes = $this->getOthersFallingBytes();
+        $start = 1_024;
+        $end = array_key_last($additionalFallingBytes);
+
+        do {
+            $middle = $start + (int) floor(($end - $start) / 2);
+
+            $cleanMap = clone $map;
+            foreach (array_slice($additionalFallingBytes, 0, $middle) as $byte) {
+                $cleanMap->add($byte, Memory::Obstacle);
+            }
+
+            try {
+                $cleanMap->calculateShortestPath();
+                $start = $middle;
+            } catch (\RuntimeException) {
+                $end = $middle;
+                continue;
+            }
+        } while ($end - $start > 1);
+
+        return (string) $additionalFallingBytes[$start];
     }
 
     private function createMap(?string $input): MemoryMap
@@ -42,5 +63,21 @@ class Day18Solution implements SolutionInterface, SecondPartSolutionInterface
         }
 
         return $memoryMap;
+    }
+
+    /**
+     * @return list<Coordinates>
+     */
+    private function getOthersFallingBytes(): array
+    {
+        $input = Input::read(__DIR__);
+
+        $fallingBytes = [];
+        foreach (explode("\n", $input) as $line) {
+            [$x, $y] = explode(',', $line);
+            $fallingBytes[] = new Coordinates((int) $x, (int) $y);
+        }
+
+        return array_values(array_slice($fallingBytes, 1_024));
     }
 }

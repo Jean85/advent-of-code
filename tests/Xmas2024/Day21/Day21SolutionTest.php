@@ -9,28 +9,17 @@ use PHPUnit\Framework\TestCase;
 
 class Day21SolutionTest extends TestCase
 {
-    public const string TEST_INPUT = '###############
-#...#...#.....#
-#.#.#.#.#.###.#
-#S#...#.#.#...#
-#######.#.#.###
-#######.#.#...#
-#######.#.###.#
-###..E#...#...#
-###.#######.###
-#...###...#...#
-#.#####.#.###.#
-#.#...#.#.#...#
-#.#.#.#.#.#.###
-#...#...#...###
-###############';
+    public const string TEST_INPUT = '029A
+980A
+179A
+456A
+379A';
 
     public function test(): void
     {
-        $this->markTestIncomplete();
         $Day21Solution = new Day21Solution();
 
-        $this->assertSame('36', $Day21Solution->solve(self::TEST_INPUT));
+        $this->assertSame('126384', $Day21Solution->solve(self::TEST_INPUT));
     }
 
     public function testSecondPart(): void

@@ -9,6 +9,7 @@ use Jean85\AdventOfCode\Coordinates;
 abstract class Keypad
 {
     public function __construct(
+        protected readonly Coordinates $gap,
         /** @var array<value-of<Key>, Coordinates */
         protected readonly array $keys
     ) {}
@@ -43,7 +44,7 @@ abstract class Keypad
     {
         $instructions = '';
 
-        foreach ($this->getMovementPriority() as $direction) {
+        foreach ($this->getMovementPriority($currentPosition, $nextPosition) as $direction) {
             $repetitions = match ($direction) {
                 Key::Up => $currentPosition->y - $nextPosition->y,
                 Key::Down => $nextPosition->y - $currentPosition->y,
@@ -63,5 +64,5 @@ abstract class Keypad
     /**
      * @return Key[]
      */
-    abstract protected function getMovementPriority(): array;
+    abstract protected function getMovementPriority(Coordinates $from, Coordinates $to): array;
 }

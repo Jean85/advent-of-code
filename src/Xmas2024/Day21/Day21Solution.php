@@ -12,9 +12,19 @@ class Day21Solution implements SolutionInterface, SecondPartSolutionInterface
 {
     public function solve(?string $input = null): string
     {
-        $raceTrack = $this->createRaceTrack($input);
+        $input ??= Input::read(__DIR__);
+        $robotKeypad = new RobotKeypad(
+            new RobotKeypad(
+                new DoorKeypad()
+            )
+        );
 
-        return (string) $raceTrack->countPossibleCheatsSavingAtLeast(100);
+        $total = 0;
+        foreach (explode(PHP_EOL, $input) as $code) {
+            $total += $this->calculateComplexity($code, $robotKeypad->calculateInstructions($code));
+        }
+
+        return (string) $total;
     }
 
     public function solveSecondPart(?string $input = null): string
@@ -24,10 +34,8 @@ class Day21Solution implements SolutionInterface, SecondPartSolutionInterface
         return (string) $raceTrack->countPossibleAdvancedCheatsSavingAtLeast(100);
     }
 
-    private function createRaceTrack(?string $input): RaceTrack
+    private function calculateComplexity(string $code, string $instructions): int
     {
-        $input ??= Input::read(__DIR__);
-
-        return new RaceTrack($input);
+        return strlen($instructions) * (int) substr($code, 0, -1);
     }
 }

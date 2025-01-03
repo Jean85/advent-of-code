@@ -15,11 +15,37 @@ class LanParty
         }
     }
 
-    public function addConnection(string $connection): void
+    private function addConnection(string $connection): void
     {
         [$firstComputer, $secondComputer] = explode('-', $connection);
         $this->connections[$firstComputer][$secondComputer] = $secondComputer;
         $this->connections[$secondComputer][$firstComputer] = $firstComputer;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getBiggestSet(): array
+    {
+        $biggestSet = [];
+        foreach ($this->findSets() as $set) {
+            $newSet = [...$set, ...array_intersect(
+                $this->connections[array_shift($set)],
+                $this->connections[array_shift($set)],
+                $this->connections[array_shift($set)],
+            )];
+
+            if (
+                $this->allComputerInSetAreConnected($newSet)
+                && count($newSet) > count($biggestSet)
+            ) {
+                $biggestSet = $newSet;
+            }
+        }
+
+        sort($biggestSet);
+
+        return $biggestSet;
     }
 
     /**
@@ -58,5 +84,22 @@ class LanParty
 
             return false;
         });
+    }
+
+    private function allComputerInSetAreConnected(array $newSet): bool
+    {
+        foreach ($newSet as $computer) {
+            foreach ($newSet as $otherComputer) {
+                if ($computer === $otherComputer) {
+                    continue;
+                }
+
+                if (! isset($this->connections[$computer][$otherComputer])) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }

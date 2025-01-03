@@ -33,4 +33,11 @@ ub,vc,wq');
             array_values($sets)
         );
     }
+
+    public function testGetBiggestSet(): void
+    {
+        $lanParty = new LanParty(Day23SolutionTest::TEST_INPUT);
+
+        $this->assertEquals(['co', 'de', 'ka', 'ta'], $lanParty->getBiggestSet());
+    }
 }

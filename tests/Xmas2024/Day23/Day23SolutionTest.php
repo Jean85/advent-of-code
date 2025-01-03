@@ -51,9 +51,8 @@ td-yn';
 
     public function testSecondPart(): void
     {
-        $this->markTestIncomplete();
         $Day23Solution = new Day23Solution();
 
-        $this->assertSame('81', $Day23Solution->solveSecondPart(self::TEST_INPUT));
+        $this->assertSame('co,de,ka,ta', $Day23Solution->solveSecondPart(self::TEST_INPUT));
     }
 }

@@ -23,6 +23,6 @@ class Day23Solution implements SolutionInterface, SecondPartSolutionInterface
         $input ??= Input::read(__DIR__);
         $lanParty = new LanParty($input);
 
-        return (string) count($lanParty->findSetsWithComputerStartingWith('t'));
+        return implode(',', $lanParty->getBiggestSet());
     }
 }

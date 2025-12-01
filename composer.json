@@ -3,8 +3,8 @@
     "description": "Advent of code playground",
     "type": "project",
     "require-dev": {
-        "phpunit/phpunit": "^11.4",
-        "facile-it/facile-coding-standard": "^1.3"
+        "phpunit/phpunit": "^12.4",
+        "facile-it/facile-coding-standard": "^1.4"
     },
     "license": "MIT",
     "authors": [
@@ -14,10 +14,9 @@
         }
     ],
     "require": {
-        "php": "^8.3",
-        "drupol/phpermutations": "^1.4",
-        "thecodingmachine/safe": "^2.5",
-        "webmozart/assert": "^1.11"
+        "php": "^8.4",
+        "thecodingmachine/safe": "^v3.2",
+        "webmozart/assert": "^1.12"
     },
     "autoload": {
         "psr-4": {

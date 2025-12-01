@@ -1,3 +1,6 @@
+# Auto-detect today's day if TODAY is not set
+TODAY ?= $(shell date +%d | sed 's/^0*//')
+
 today: cs-fix tests-today solve-today
 
 cs-fix:

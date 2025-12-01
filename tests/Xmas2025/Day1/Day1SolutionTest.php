@@ -29,9 +29,15 @@ L82';
 
     public function testSecondPart(): void
     {
-        $this->markTestIncomplete();
         $day1Solution = new Day1Solution();
 
-        $this->assertSame('31', $day1Solution->solveSecondPart(self::TEST_INPUT));
+        $this->assertSame('6', $day1Solution->solveSecondPart(self::TEST_INPUT));
+    }
+
+    public function testSecondPartWithEdgeCase(): void
+    {
+        $day1Solution = new Day1Solution();
+
+        $this->assertSame('10', $day1Solution->solveSecondPart('R1000'));
     }
 }

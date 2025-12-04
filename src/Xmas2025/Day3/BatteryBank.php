@@ -31,19 +31,34 @@ class BatteryBank
 
     public function findTwoBatteriesWithBestJoltage(): int
     {
-        $highestValue = max($this->batteries);
-        $remainderAfterHighestValue = array_slice($this->batteries, 1 + array_search($highestValue, $this->batteries, true));
-        if (count($remainderAfterHighestValue) > 0) {
-            $secondBattery = max($remainderAfterHighestValue);
+        return (int) implode($this->findBatteriesWithBestJoltage($this->batteries, 2));
+    }
 
-            return (10 * $highestValue) + $secondBattery;
+    public function findTwelveBatteriesWithBestJoltage(): int
+    {
+        return (int) implode($this->findBatteriesWithBestJoltage($this->batteries, 12));
+    }
+
+    /**
+     * @param int[] $batteries
+     * @param int[] $alreadyFoundBatteries
+     *
+     * @return int[]
+     */
+    private function findBatteriesWithBestJoltage(array $batteries, int $neededNumbers, array $alreadyFoundBatteries = []): array
+    {
+        --$neededNumbers;
+
+        if ($neededNumbers === 0) {
+            return [...$alreadyFoundBatteries, max($batteries)];
         }
 
-        // $highestValue is the last element of the bank, we can't select it as first digit
-        // let's use it as the second digit
+        $remainders = array_slice($batteries, 0, -$neededNumbers);
 
-        $firstDigit = max(array_slice($this->batteries, 0, count($this->batteries) - 1));
+        $newBattery = max($remainders);
+        $alreadyFoundBatteries[] = $newBattery;
+        $remainders = array_slice($batteries, 1 + array_search($newBattery, $batteries, true));
 
-        return (10 * $firstDigit) + $highestValue;
+        return $this->findBatteriesWithBestJoltage($remainders, $neededNumbers, $alreadyFoundBatteries);
     }
 }

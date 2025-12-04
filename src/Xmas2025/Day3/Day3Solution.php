@@ -27,6 +27,12 @@ class Day3Solution implements SolutionInterface, SecondPartSolutionInterface
     {
         $input ??= Input::read(__DIR__);
 
+        $banks = BatteryBank::create($input);
+        $result = 0;
+        foreach ($banks as $bank) {
+            $result += $bank->findTwelveBatteriesWithBestJoltage();
+        }
+
         return (string) $result;
     }
 }

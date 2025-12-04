@@ -33,6 +33,32 @@ class PaperRollsMap
         $this->map->setDefaultElement('.');
     }
 
+    public function removeAllPossibleRolls(): int
+    {
+        $removableRolls = [];
+
+        foreach ($this->map->getAll() as $got) {
+            [$coordinates, $roll] = $got;
+            if ($roll !== '@') {
+                continue;
+            }
+
+            if ($this->rollIsReachable($coordinates)) {
+                $removableRolls[] = $coordinates;
+            }
+        }
+
+        if (empty($removableRolls)) {
+            return 0;
+        }
+
+        foreach ($removableRolls as $coordinates) {
+            $this->map->add($coordinates, '.');
+        }
+
+        return count($removableRolls) + $this->removeAllPossibleRolls();
+    }
+
     public function countReachableRolls(): int
     {
         $reachableRolls = 0;

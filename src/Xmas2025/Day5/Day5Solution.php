@@ -32,7 +32,9 @@ class Day5Solution implements SolutionInterface, SecondPartSolutionInterface
     public function solveSecondPart(?string $input = null): string
     {
         $input ??= Input::read(__DIR__);
+        [$rangesInput, $ingredientsInput] = explode("\n\n", $input);
+        $ingredientRanges = IngredientRanges::parse($rangesInput);
 
-        return (string) PaperRollsMap::read($input)->removeAllPossibleRolls();
+        return (string) $ingredientRanges->countValidIngredients();
     }
 }

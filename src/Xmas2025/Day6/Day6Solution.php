@@ -16,15 +16,15 @@ class Day6Solution implements SolutionInterface, SecondPartSolutionInterface
 
         $problems = MathematicalProblem::parse($input);
 
-        return (string) array_sum(array_map(fn(MathematicalProblem $p) => $p->solve(), $problems));
+        return (string) array_sum(array_map(static fn(MathematicalProblem $p) => $p->solve(), $problems));
     }
 
     public function solveSecondPart(?string $input = null): string
     {
         $input ??= Input::read(__DIR__);
-        [$rangesInput, $ingredientsInput] = explode("\n\n", $input);
-        $ingredientRanges = IngredientRanges::parse($rangesInput);
 
-        return (string) $ingredientRanges->countValidIngredients();
+        $problems = MathematicalProblem::parseInColumn($input);
+
+        return (string) array_sum(array_map(static fn(MathematicalProblem $p) => $p->solve(), $problems));
     }
 }

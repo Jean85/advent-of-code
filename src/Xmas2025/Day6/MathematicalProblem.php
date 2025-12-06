@@ -35,6 +35,46 @@ class MathematicalProblem
         return $problems;
     }
 
+    /**
+     * @return self[]
+     */
+    public static function parseInColumn(string $input): array
+    {
+        $problems = [];
+        $rows = explode("\n", $input);
+        $numbers = [];
+        $rowLen = strlen($rows[0]);
+        $j = $rowLen;
+
+        while (--$j >= 0) {
+            $number = '';
+            foreach ($rows as $row) {
+                $char = $row[$j] ?? ' ';
+
+                if ($char === ' ') {
+                    continue;
+                }
+
+                if (is_numeric($char)) {
+                    $number .= $char;
+                } else {
+                    $operation = Operation::from($char);
+                }
+            }
+
+            $numbers[] = (int) $number;
+
+            if (isset($operation)) {
+                $problems[] = new self($operation, $numbers);
+                unset($operation);
+                $numbers = [];
+                --$j; // skip empty tabbing column;
+            }
+        }
+
+        return $problems;
+    }
+
     public function __construct(
         public readonly Operation $operation,
         /** @var int[] */

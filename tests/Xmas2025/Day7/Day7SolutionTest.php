@@ -1,0 +1,43 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Xmas2025\Day7;
+
+use Jean85\AdventOfCode\Xmas2025\Day7\Day7Solution;
+use PHPUnit\Framework\TestCase;
+
+class Day7SolutionTest extends TestCase
+{
+    private const string TEST_INPUT = '.......S.......
+...............
+.......^.......
+...............
+......^.^......
+...............
+.....^.^.^.....
+...............
+....^.^...^....
+...............
+...^.^...^.^...
+...............
+..^...^.....^..
+...............
+.^.^.^.^.^...^.
+...............';
+
+    public function test(): void
+    {
+        $Day7Solution = new Day7Solution();
+
+        $this->assertSame('21', $Day7Solution->solve(self::TEST_INPUT));
+    }
+
+    public function testSecondPart(): void
+    {
+        self::markTestIncomplete();
+        $Day7Solution = new Day7Solution();
+
+        $this->assertSame('3263827', $Day7Solution->solveSecondPart(self::TEST_INPUT));
+    }
+}

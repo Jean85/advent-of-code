@@ -23,8 +23,8 @@ class Day7Solution implements SolutionInterface, SecondPartSolutionInterface
     {
         $input ??= Input::read(__DIR__);
 
-        $problems = MathematicalProblem::parseInColumn($input);
+        $map = TachyonMap::parse($input);
 
-        return (string) array_sum(array_map(static fn(MathematicalProblem $p) => $p->solve(), $problems));
+        return (string) $map->countSplitsWithQuantum();
     }
 }

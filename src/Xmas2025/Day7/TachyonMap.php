@@ -68,4 +68,40 @@ class TachyonMap
 
         return $splits;
     }
+
+    public function countSplitsWithQuantum(): int
+    {
+        $tachyons = $this->getSplitsWithQuantum();
+
+        return array_reduce($tachyons, static fn(int $carry, QuantumTachyon $t) => $carry + $t->superPositions, 0);
+    }
+
+    /**
+     * @return list<QuantumTachyon>
+     */
+    public function getSplitsWithQuantum(): array
+    {
+        $y = $this->start->y;
+        $tachyons = [new QuantumTachyon($this->start)];
+        $maxY = $this->map->getMaxCoordinates()->y;
+
+        while (++$y <= $maxY) {
+            $oldTachyons = $tachyons;
+            $tachyons = [];
+
+            while ($tachyon = array_shift($oldTachyons)) {
+                $tachyon = new QuantumTachyon(new Coordinates($tachyon->coordinates->x, $y), $tachyon->superPositions);
+                if ($this->map->get($tachyon->coordinates) === MapTile::Splitter) {
+                    $leftTachyon = $tachyon->moveLeft();
+                    $rightTachyon = $tachyon->moveRight();
+                    $tachyons[$leftTachyon->coordinates->x] = $leftTachyon->merge($tachyons[$leftTachyon->coordinates->x] ?? null);
+                    $tachyons[$rightTachyon->coordinates->x] = $rightTachyon->merge($tachyons[$rightTachyon->coordinates->x] ?? null);
+                } else {
+                    $tachyons[$tachyon->coordinates->x] = $tachyon->merge($tachyons[$tachyon->coordinates->x] ?? null);
+                }
+            }
+        }
+
+        return $tachyons;
+    }
 }

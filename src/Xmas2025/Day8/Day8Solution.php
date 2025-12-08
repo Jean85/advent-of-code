@@ -30,6 +30,15 @@ class Day8Solution implements SolutionInterface, SecondPartSolutionInterface
 
         $map = CircuitMap::parse($input);
 
-        return (string) $map->countSplitsWithQuantum();
+        $i = 1_000;
+        do {
+            $lastConnected = $map->connectTwoNearestBoxes();
+        } while ($map->countCircuits() > 1);
+
+        [$firstBoxName, $secondBoxName] = explode('-', $lastConnected);
+        $firstBox = Coordinates3D::fromString($firstBoxName);
+        $secondBox = Coordinates3D::fromString($secondBoxName);
+
+        return (string) ($firstBox->x * $secondBox->x);
     }
 }

@@ -7,7 +7,7 @@ cs-fix:
 	vendor/bin/php-cs-fixer fix
 
 tests-today:
-	vendor/bin/phpunit tests/Xmas2025/Day${TODAY}
+	php -d memory_limit=4G vendor/bin/phpunit tests/Xmas2025/Day${TODAY}
 
 solve-today:
-	php solve.php ${TODAY}
+	php -d memory_limit=4G solve.php ${TODAY}

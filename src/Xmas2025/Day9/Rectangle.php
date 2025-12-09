@@ -26,4 +26,9 @@ class Rectangle
         return (1 + abs($this->a->x - $this->b->x))
             * (1 + abs($this->a->y - $this->b->y));
     }
+
+    public function __toString(): string
+    {
+        return $this->a->__toString() . '-' . $this->b->__toString();
+    }
 }

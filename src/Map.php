@@ -86,4 +86,25 @@ class Map
             && $coordinates->x >= 0
             && $coordinates->y >= 0;
     }
+
+    public function draw(): void
+    {
+        foreach ($this->getAll() as $data) {
+            [$coordinates, $tile] = $data;
+            if ($coordinates->x === 0) {
+                echo PHP_EOL;
+            }
+
+            if ($tile && property_exists($tile, 'value')) {
+                echo $tile->value;
+            } elseif (false === $tile) {
+                echo ' ';
+            } else {
+                echo (string) $tile;
+            }
+        }
+
+        echo PHP_EOL;
+        echo PHP_EOL;
+    }
 }

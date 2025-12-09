@@ -13,6 +13,28 @@ class Day9Solution implements SolutionInterface, SecondPartSolutionInterface
 {
     public function solve(?string $input = null): string
     {
+        $tiles = $this->getRedTiles($input);
+        $rectangles = $this->getRectangles($tiles);
+
+        return (string) $this->getGreatestArea($rectangles);
+    }
+
+    public function solveSecondPart(?string $input = null): string
+    {
+        $tiles = $this->getRedTiles($input);
+        $rectangles = $this->getRectangles($tiles);
+        $edges = $this->getEdges($tiles);
+        usort($rectangles, static fn(Rectangle $a, Rectangle $b) => $b->getArea() <=> $a->getArea());
+        $largestValidRectangle = $this->getLargestRectangle($rectangles, $edges);
+
+        return (string) $largestValidRectangle->getArea();
+    }
+
+    /**
+     * @return Coordinates[]
+     */
+    private function getRedTiles(?string $input): array
+    {
         $input ??= Input::read(__DIR__);
 
         $tiles = [];
@@ -21,6 +43,14 @@ class Day9Solution implements SolutionInterface, SecondPartSolutionInterface
             $tiles[] = Coordinates::fromString($line);
         }
 
+        return $tiles;
+    }
+
+    /**
+     * @return array<string, Rectangle>
+     */
+    private function getRectangles(array $tiles): array
+    {
         $rectangles = [];
         $tiles2 = $tiles;
 
@@ -36,13 +66,57 @@ class Day9Solution implements SolutionInterface, SecondPartSolutionInterface
             }
         }
 
-        return (string) max(
+        return $rectangles;
+    }
+
+    /**
+     * @param Rectangle[] $rectangles
+     */
+    private function getGreatestArea(array $rectangles): int
+    {
+        return max(
             array_map(static fn(Rectangle $rectangle) => $rectangle->getArea(), $rectangles)
         );
     }
 
-    public function solveSecondPart(?string $input = null): string
+    /**
+     * @param Coordinates[] $tiles
+     *
+     * @return Edge[]
+     */
+    private function getEdges(array $tiles): array
     {
-        $input ??= Input::read(__DIR__);
+        $edges = [];
+        $previousTile = array_pop($tiles);
+        $tiles[] = $previousTile;
+
+        foreach ($tiles as $tile) {
+            if ($tile->x === $previousTile->x) {
+                $edges[] = new VerticalEdge($previousTile, $tile);
+            } elseif ($tile->y === $previousTile->y) {
+                $edges[] = new HorizontalEdge($previousTile, $tile);
+            } else {
+                throw new \InvalidArgumentException('Diagonal edge detected');
+            }
+
+            $previousTile = $tile;
+        }
+
+        return $edges;
+    }
+
+    /**
+     * @param Rectangle[] $rectangles
+     * @param Edge[] $verticalEdges
+     */
+    private function getLargestRectangle(array $rectangles, array $verticalEdges): Rectangle
+    {
+        foreach ($rectangles as $rectangle) {
+            if (array_any($verticalEdges, fn(Edge $verticalEdge): bool => $verticalEdge->cutsTrough($rectangle))) {
+                continue;
+            }
+
+            return $rectangle;
+        }
     }
 }

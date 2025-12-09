@@ -11,6 +11,21 @@ class Coordinates
         public readonly int $y,
     ) {}
 
+    public static function fromString(string $line): self
+    {
+        [$x, $y] = explode(',', $line);
+
+        if (! is_numeric($x)) {
+            throw new \InvalidArgumentException('X must be numeric, got: ' . $x);
+        }
+
+        if (! is_numeric($y)) {
+            throw new \InvalidArgumentException('Y must be numeric, got: ' . $y);
+        }
+
+        return new self((int) $x, (int) $y);
+    }
+
     public function getManhattanDistanceFrom(self $other): int
     {
         return abs($this->x - $other->x) + abs($this->y - $other->y);

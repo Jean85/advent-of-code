@@ -29,9 +29,21 @@ iii: out';
 
     public function testSecondPart(): void
     {
-        self::markTestIncomplete();
+        $input = 'svr: aaa bbb
+aaa: fft
+fft: ccc
+bbb: tty
+tty: ccc
+ccc: ddd eee
+ddd: hub
+hub: fff
+eee: dac
+dac: fff
+fff: ggg hhh
+ggg: out
+hhh: out';
         $Day11Solution = new Day11Solution();
 
-        $this->assertSame('33', $Day11Solution->solveSecondPart(self::TEST_INPUT));
+        $this->assertSame('2', $Day11Solution->solveSecondPart($input));
     }
 }

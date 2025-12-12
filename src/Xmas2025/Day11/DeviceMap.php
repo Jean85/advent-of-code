@@ -8,7 +8,10 @@ class DeviceMap
 {
     /** @var array<string, Device> */
     private array $devices;
-    private int $possiblePaths = 0;
+    private Device $start;
+    private Device $end;
+    /** @var array<string, int> */
+    private array $cache;
 
     public static function parse(string $input): self
     {
@@ -34,31 +37,79 @@ class DeviceMap
 
     public function getStart(): Device
     {
-        return $this->getDevice('you');
+        return $this->start ?? $this->getDevice('you');
     }
 
     public function getEnd(): Device
     {
-        return $this->getDevice('out');
+        return $this->end ?? $this->getDevice('out');
     }
 
-    public function countPossiblePaths(?Device $currentDevice = null): void
+    public function countPossiblePaths(?Device $currentDevice = null, array $avoidNodes = []): int
     {
-        if ($currentDevice === $this->getEnd()) {
-            ++$this->possiblePaths;
+        if ($currentDevice && isset($this->cache[$currentDevice->name])) {
+            return $this->cache[$currentDevice->name];
+        }
 
-            return;
+        foreach ($avoidNodes as $avoidNode) {
+            if ($currentDevice === $avoidNode) {
+                return 0;
+            }
+        }
+
+        if ($currentDevice === $this->getEnd()) {
+            return 1;
         }
 
         $currentDevice ??= $this->getStart();
 
+        $downstreamValidPaths = 0;
         foreach ($currentDevice->outputs as $output) {
-            $this->countPossiblePaths($output);
+            $downstreamValidPaths += $this->countPossiblePaths($output, $avoidNodes);
         }
+
+        $this->cache[$currentDevice->name] = $downstreamValidPaths;
+
+        return $downstreamValidPaths;
     }
 
-    public function getPossiblePaths(): int
+    public function countPossibleAdvancedPaths(): int
     {
-        return $this->possiblePaths;
+        $this->start = $this->getDevice('fft');
+        $this->end = $this->getDevice('dac');
+        $possiblePathsFftDac = $this->countPossiblePaths();
+        $this->reset();
+
+        $this->start = $this->getDevice('dac');
+        $this->end = $this->getDevice('fft');
+        $possiblePathsDacFft = $this->countPossiblePaths();
+        $this->reset();
+
+        $this->start = $this->getDevice('svr');
+        $this->end = $this->getDevice('fft');
+        $possiblePathsFftDac *= $this->countPossiblePaths(null, [$this->getDevice('dac'), $this->getDevice('out')]);
+        $this->reset();
+
+        $this->start = $this->getDevice('svr');
+        $this->end = $this->getDevice('dac');
+        $possiblePathsDacFft *= $this->countPossiblePaths(null, [$this->getDevice('svr'), $this->getDevice('out')]);
+        $this->reset();
+
+        $this->start = $this->getDevice('dac');
+        $this->end = $this->getDevice('out');
+        $possiblePathsFftDac *= $this->countPossiblePaths(null, [$this->getDevice('svr'), $this->getDevice('fft')]);
+        $this->reset();
+
+        $this->start = $this->getDevice('fft');
+        $this->end = $this->getDevice('out');
+        $possiblePathsDacFft *= $this->countPossiblePaths(null, [$this->getDevice('svr'), $this->getDevice('dac')]);
+        $this->reset();
+
+        return $possiblePathsDacFft + $possiblePathsFftDac;
+    }
+
+    protected function reset(): void
+    {
+        $this->cache = [];
     }
 }

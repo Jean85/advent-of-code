@@ -15,13 +15,14 @@ class Day11Solution implements SolutionInterface, SecondPartSolutionInterface
         $input ??= Input::read(__DIR__);
         $deviceMap = DeviceMap::parse($input);
 
-        $deviceMap->countPossiblePaths();
-
-        return (string) $deviceMap->getPossiblePaths();
+        return (string) $deviceMap->countPossiblePaths();
     }
 
     public function solveSecondPart(?string $input = null): string
     {
         $input ??= Input::read(__DIR__);
+        $deviceMap = DeviceMap::parse($input);
+
+        return (string) $deviceMap->countPossibleAdvancedPaths();
     }
 }

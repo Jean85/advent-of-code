@@ -18,7 +18,7 @@ class Day10Solution implements SolutionInterface, SecondPartSolutionInterface
 
         $minimumButtonPresses = 0;
         foreach ($machines as $machine) {
-            $minimumButtonPresses += $machine->countMinButtonPressesForLights();
+            $minimumButtonPresses += count($machine->calcMinButtonPressesForLights());
         }
 
         return (string) $minimumButtonPresses;
@@ -30,7 +30,6 @@ class Day10Solution implements SolutionInterface, SecondPartSolutionInterface
 
         $machines = Machine::parseAll($input);
 
-        echo 'Startin...' . PHP_EOL;
         $minimumButtonPresses = 0;
         foreach ($machines as $machine) {
             $minimumButtonPresses += $machine->countMinButtonPressesForJoltage();

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Jean85\AdventOfCode\Xmas2025\Day10;
 
-class IndicatorLights
+class IndicatorLights implements \Stringable
 {
     public function __construct(
         /** @var list<bool> */
@@ -39,5 +39,13 @@ class IndicatorLights
         }
 
         return $newLights === $this->lights;
+    }
+
+    public function __toString(): string
+    {
+        return implode(
+            ',',
+            array_map(static fn(bool $b): string => $b ? '#' : '.', $this->lights)
+        );
     }
 }

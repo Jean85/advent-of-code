@@ -8,6 +8,7 @@ class Machine
 {
     private array $cache = [];
     private array $parityCache = [];
+    /** @var array<string, positive-int> */
     private array $buttonCache = [];
 
     private function __construct(
@@ -68,6 +69,14 @@ class Machine
     public function countMinButtonPressesForJoltage(?Joltage $joltage = null): int
     {
         $joltage ??= $this->joltageRequirements;
+
+        $this->preCalculateAllPatterns();
+
+        return $this->solveSingleJoltage($joltage);
+    }
+
+    private function solveSingleJoltage(Joltage $joltage): int
+    {
         $cacheTag = $joltage->__toString();
 
         if (isset($this->cache[$cacheTag])) {
@@ -78,39 +87,24 @@ class Machine
             return $this->cache[$cacheTag] = 0;
         }
 
-        if ($joltage->isAllEven()) {
-            return $this->cache[$cacheTag] = 2 * $this->countMinButtonPressesForJoltage($joltage->half());
-        }
+        $answer = 1_000_000_000;
 
-        $convertedJoltage = $joltage->convertToIndicatorLights();
-        $qty = 1;
-        $foundValidPresses = [];
-        $combinations = null;
-        if (isset($this->parityCache[$convertedJoltage->__toString()])) {
-            $combinations = $this->parityCache[$convertedJoltage->__toString()];
-            $qty = PHP_INT_MAX;
-        } else {
-            $this->parityCache[$convertedJoltage->__toString()] = [];
-        }
-
-        do {
-            foreach ($combinations ?? $this->getAllCombinationOfButtonsWithNoRepetitions($this->buttons, $qty) as $buttons) {
-                if ($convertedJoltage->canBeLightUpWith($buttons)) {
-                    $this->parityCache[$convertedJoltage->__toString()][] = $buttons;
-
-                    try {
-                        $sub = $joltage->subtract($buttons);
-                        $foundValidPresses[] = count($buttons) + $this->countMinButtonPressesForJoltage($sub);
-                    } catch (\InvalidArgumentException) {
-                        // no valid combination
-                        $foundValidPresses[] = 1_000_000_000;
-                    }
-                }
+        foreach ($this->buttonCache as $patternStr => $patternCost) {
+            $pattern = Joltage::fromString($patternStr);
+            if (! $joltage->canSubtract($pattern)) {
+                continue;
             }
-            ++$qty;
-        } while ($qty <= count($this->buttons));
 
-        return $this->cache[$cacheTag] = min([...$foundValidPresses, 1_000_000_000]);
+            if (! $joltage->hasSameParity($pattern)) {
+                continue;
+            }
+
+            $newGoal = $joltage->subtract($pattern);
+            $totalCost = $patternCost + 2 * $this->solveSingleJoltage($newGoal->half());
+            $answer = min($answer, $totalCost);
+        }
+
+        return $this->cache[$cacheTag] = $answer;
     }
 
     /**
@@ -134,43 +128,56 @@ class Machine
         }
     }
 
-    /**
-     * @param Button[] $possibleButtons
-     *
-     * @return Button[]
-     */
-    private function getAllCombinationOfButtonsWithNoRepetitions(array $possibleButtons, int $qty): array
+    private function preCalculateAllPatterns(): void
     {
-        if ($qty > count($possibleButtons)) {
-            throw new \InvalidArgumentException('Not enough buttons');
+        if (! empty($this->buttonCache)) {
+            return;
         }
 
-        return $this->buttonCache[$qty] ??= iterator_to_array(
-            $this->getAllCombinationOfButtonsWithNoRepetitionsRecursively($possibleButtons, $qty)
-        );
+        $numButtons = count($this->buttons);
+        $numCounters = count($this->joltageRequirements->joltages);
+
+        // Generate all possible button combinations and their effects
+        for ($patternLen = 0; $patternLen <= $numButtons; ++$patternLen) {
+            foreach ($this->getCombinations(range(0, $numButtons - 1), $patternLen) as $buttonIndices) {
+                // Calculate the net effect of pressing these buttons
+                $pattern = array_fill(0, $numCounters, 0);
+
+                foreach ($buttonIndices as $buttonIndex) {
+                    foreach ($this->buttons[$buttonIndex]->buttons as $counterIndex => $value) {
+                        ++$pattern[$counterIndex];
+                    }
+                }
+
+                $resultingEffect = new Joltage(...$pattern);
+                $this->buttonCache[$resultingEffect->__toString()] ??= $patternLen;
+            }
+        }
     }
 
     /**
-     * @param Button[] $possibleButtons
+     * @param int[] $items
      *
-     * @return \Generator<Button[]>
+     * @return \Generator<int[]>
      */
-    private function getAllCombinationOfButtonsWithNoRepetitionsRecursively(array $possibleButtons, int $qty): \Generator
+    private function getCombinations(array $items, int $length): \Generator
     {
-        if ($qty > count($possibleButtons)) {
-            throw new \InvalidArgumentException('Not enough buttons');
-        }
-
-        if ($qty < 1) {
+        if ($length === 0) {
             yield [];
 
             return;
         }
 
-        for ($i = 0; $i <= count($possibleButtons) - $qty; ++$i) {
-            $remainingButtons = array_slice($possibleButtons, $i);
-            foreach ($this->getAllCombinationOfButtonsWithNoRepetitionsRecursively($remainingButtons, $qty - 1) as $followingButtons) {
-                yield [$possibleButtons[$i], ...$followingButtons];
+        if ($length > count($items)) {
+            return;
+        }
+
+        for ($i = 0; $i <= count($items) - $length; ++$i) {
+            $first = $items[$i];
+            $remaining = array_slice($items, $i + 1);
+
+            foreach ($this->getCombinations($remaining, $length - 1) as $combination) {
+                yield [$first, ...$combination];
             }
         }
     }

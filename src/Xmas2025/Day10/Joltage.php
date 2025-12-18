@@ -14,6 +14,11 @@ class Joltage implements \Stringable
         $this->joltages = $joltages;
     }
 
+    public static function fromString(string $input): self
+    {
+        return new self(...array_map('intval', explode(',', $input)));
+    }
+
     public function isAllZero(): bool
     {
         return array_all($this->joltages, static fn(int $i): bool => $i === 0);
@@ -31,24 +36,18 @@ class Joltage implements \Stringable
         );
     }
 
-    /**
-     * @param Button[] $pressedButtons
-     */
-    public function subtract(array $pressedButtons): self
+    public function subtract(self $subtractor): self
     {
-        $joltages = $this->joltages;
+        $newJoltages = $this->joltages;
 
-        foreach ($pressedButtons as $pressed) {
-            foreach ($pressed->buttons as $button => $true) {
-                --$joltages[$button];
-
-                if ($joltages[$button] < 0) {
-                    throw new \InvalidArgumentException('Button presses sent joltages in the negative');
-                }
+        foreach ($subtractor->joltages as $i => $valueToSubtract) {
+            $newJoltages[$i] -= $valueToSubtract;
+            if ($newJoltages[$i] < 0) {
+                throw new \InvalidArgumentException('Button presses sent joltages in the negative');
             }
         }
 
-        return new self(...$joltages);
+        return new self(...$newJoltages);
     }
 
     public function isAllEven(): bool
@@ -63,5 +62,27 @@ class Joltage implements \Stringable
         }
 
         return new self(...array_map(static fn(int $i): int => $i / 2, $this->joltages));
+    }
+
+    public function canSubtract(self $subtractor): bool
+    {
+        foreach ($subtractor->joltages as $i => $valueToSubtract) {
+            if ($valueToSubtract > $this->joltages[$i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public function hasSameParity(Joltage $other)
+    {
+        foreach ($other->joltages as $i => $valueToCompare) {
+            if (($valueToCompare % 2) !== ($this->joltages[$i] % 2)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
